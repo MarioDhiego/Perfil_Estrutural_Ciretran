@@ -35,6 +35,7 @@ library(glue)
 library(rjson)
 library(googleway)
 library(echarts4r)
+library(memoise)  # Pacote para caching
 #-------------------------------------------------------------------------------
 # Carregar Dados
 setwd("C:/Users/mario.valente/Documents/github_2024/Perfil_Estrutural_Ciretran-main")
@@ -95,6 +96,7 @@ ui <- dashboardPage(title = "Dashboard", skin = "blue",
                         menuItem("EQUIPAMENTOS", tabName = "coleta1", icon = icon("wrench")),
                         menuItem("SERVIÇOS", tabName = "destino1", icon = icon("tasks")),
                         menuItem("ESTRUTURAL", tabName = "estrutura1", icon = icon("building")),
+                        menuItem("VISITA TÉCNICA", tabName = "visita1", icon = icon("book")),
                         selectInput("municipio", "MUNICÍPIOS:", 
                                     choices = unique(dados$Municípios), 
                                     selected = unique(dados$Municípios)[56]),
@@ -124,18 +126,32 @@ ui <- dashboardPage(title = "Dashboard", skin = "blue",
                         tabName = "analises",
                       fluidRow(
                         tabBox(title = "", width = 12,
-                               tabPanel("Vistoriador",
-                                        fluidRow(
-                        box(
-                          title = "Vistoriador",width = 7, status = "primary", solidHeader = TRUE, collapsible = TRUE,
-                          plotlyOutput("grafico_vistoriador")  %>% withSpinner(color = "#17a2b8")
-                        )
-                        )
+                               
+                              
+                        
+                        tabPanel("Vistoriador",
+                                 fluidRow(
+                                   column(
+                                     width = 7,  # 50% da largura da tela
+                                     box(
+                                       title = "Vistoriador de Trânsito", width = 12, status = "primary", solidHeader = TRUE, collapsible = TRUE,
+                                       plotlyOutput("grafico_vistoriador") %>% withSpinner(color = "#17a2b8")
+                                     )
+                                   ),
+                                   column(
+                                     width = 5,  # 50% da largura da tela
+                                     box(
+                                       title = "Tabela Vistoriador", width = 12, status = "primary", solidHeader = TRUE, collapsible = TRUE,
+                                       DTOutput("tabela_vistoriador")
+                                     )
+                                   )
+                                 )
                         ),
+
                         tabPanel("AFT",
                                  fluidRow(
                         box(
-                          title = "Agente de Trânsito (AFT)", width = 7,status = "primary", solidHeader = TRUE, collapsible = TRUE,
+                          title = "Agente de Trânsito", width = 7,status = "primary", solidHeader = TRUE, collapsible = TRUE,
                           plotlyOutput("grafico_aft")  %>% withSpinner(color = "#17a2b8")
                         )
                         )
@@ -149,7 +165,21 @@ ui <- dashboardPage(title = "Dashboard", skin = "blue",
                           plotlyOutput("grafico_auxiliar")  %>% withSpinner(color = "#17a2b8")
                         )
                                  )
-                        )
+                        ),
+                        
+                        tabPanel("Assistente",
+                                 fluidRow(
+                                   
+                                   box(
+                                     title = "Assistente de Trânsito", width = 7, status = "primary", solidHeader = TRUE, collapsible = TRUE,
+                                     plotlyOutput("grafico_assistente")  %>% withSpinner(color = "#17a2b8")
+                                   )
+                                 )
+                        ),
+                        
+                        
+                        
+                        
                       )
                       )
                       ),
@@ -161,7 +191,6 @@ ui <- dashboardPage(title = "Dashboard", skin = "blue",
 
 #-------------------------------------------------------------------------------
 # SERVER
-
 server <- function(input, output, session) {
   
   # Filtrar dados com base no município selecionado
@@ -172,8 +201,8 @@ server <- function(input, output, session) {
       dados %>% filter(Municípios == input$municipio)
     }
   })
-  
-  # Adicionar o valueBox de Servidores
+#------------------------------------------------------------------------------#
+# ValueBox de Servidores
   output$valuebox_servidores <- renderValueBox({
     total_servidores <- sum(dados_filtrados()$Servidores, na.rm = TRUE)
     valueBox(
@@ -183,8 +212,8 @@ server <- function(input, output, session) {
       color = "aqua"
     )
   })
-  
-  # Adicionar o valueBox de Agentes
+#------------------------------------------------------------------------------#
+# ValueBox de Agentes
   output$valuebox_agentes <- renderValueBox({
     total_agentes <- sum(dados_filtrados()$N_Agentes, na.rm = TRUE)
     valueBox(
@@ -194,8 +223,8 @@ server <- function(input, output, session) {
       color = "aqua"
     )
   })
-  
-  # Adicionar o valueBox de Vistoriador
+#------------------------------------------------------------------------------#
+# ValueBox de Vistoriador
   output$valuebox_vistoriador <- renderValueBox({
     total_vistoriador <- sum(dados_filtrados()$N_Vistoriador, na.rm = TRUE)
     valueBox(
@@ -205,8 +234,8 @@ server <- function(input, output, session) {
       color = "aqua"
     )
   })
-  
-  # Adicionar o valueBox de Assistente
+#------------------------------------------------------------------------------#
+# ValueBox de Assistente
   output$valuebox_assistente <- renderValueBox({
     total_assistente <- sum(dados_filtrados()$N_Assistente, na.rm = TRUE)
     valueBox(
@@ -216,42 +245,76 @@ server <- function(input, output, session) {
       color = "aqua"
     )
   })
-  
-  # Botão de reset
-  observeEvent(input$reset_button, {
-    updateSelectInput(session, "municipio", selected = unique(dados$Municípios)[56])
-    updateSelectInput(session, "regiao", selected = unique(dados$`Região Integração`)[1])
-    updateSelectInput(session, "tipo_ciretran", selected = unique(dados$`Tipo Ciretran`)[1])
-    updateSelectInput(session, "situacao_imovel", selected = unique(dados$`Situação do Imóvel`)[1])
+#------------------------------------------------------------------------------#
+# Botão de Reset
+observeEvent(input$reset_button, {
+  updateSelectInput(session,"municipio",selected = unique(dados$Municípios)[56])
+  updateSelectInput(session,"regiao",selected = unique(dados$`Região Integração`)[1])
+  updateSelectInput(session,"tipo_ciretran", selected = unique(dados$`Tipo Ciretran`)[1])
+  updateSelectInput(session,"situacao_imovel", selected = unique(dados$`Situação do Imóvel`)[1])
   })
-  
-  # Gerar gráfico de barras interativo para a variável Vistoriador
-  output$grafico_vistoriador <- renderPlotly({
-  
-    if ("Vistoriador" %in% colnames(dados)) {
-     
-      vistoriador_count <- dados %>%
-        group_by(Vistoriador) %>%
-        summarise(contagem = n())
-      
-      vistoriador_count <- vistoriador_count %>%
-        mutate(percentual = contagem / sum(contagem) * 100)
-      
-      
-      p1<- ggplot(vistoriador_count, aes(x = Vistoriador, y = contagem, fill = Vistoriador)) +
-        geom_bar(stat = "identity", show.legend = FALSE) +
-        geom_text(aes(label = paste0(round(percentual, 1), "%")), 
-                  position = position_stack(vjust = 0.5), color = "white") +
-        labs(title = "", x = "", y = "N° de Ciretrans") +
-        theme_minimal()
-      
+#------------------------------------------------------------------------------#
+# Gráfico de Vistoriador
+
+output$grafico_vistoriador <- renderPlotly({
+  if ("Vistoriador" %in% colnames(dados)) {
+    vistoriador_count <- dados %>%
+      group_by(Vistoriador) %>%
+      summarise(contagem = n()) %>%
+      mutate(percentual = contagem / sum(contagem) * 100)
     
-      ggplotly(p1)
-    }
-  })
+    vistoriador_count <- vistoriador_count %>%
+      mutate(Vistoriador = forcats::fct_relevel(Vistoriador, "Sim", after = 0))
+    
+    p1 <- ggplot(vistoriador_count, aes(x = Vistoriador, y = contagem, fill = Vistoriador)) +
+      geom_bar(stat = "identity") +
+      geom_text(aes(label = paste0(round(percentual, 1), "%")), 
+                vjust = -0.5, color = "black") +
+      labs(title = "Distribuição por Vistoriador", x = "Vistoriador", y = "N° de Ciretrans") +
+      theme_minimal()
+    
+    plotly_p1 <- ggplotly(p1) %>%
+      layout(dragmode = "zoom")
+    
+    return(plotly_p1)
+  }
+})
+#------------------------------------------------------------------------------#
+# Tabela Vistoriador por Região Integração
+
+output$tabela_vistoriador <- renderDT({
+  click_data <- event_data("plotly_click")
   
+  if (!is.null(click_data)) {
+    selected_vistoriador <- click_data$x
+    
+    vistoriador_table <- dados %>%
+      filter(Vistoriador == selected_vistoriador) %>%
+      group_by(`Região Integração`, Vistoriador) %>%
+      summarise(contagem = n()) %>%
+      ungroup()
+    
+    title <- paste("Tabela de Vistoriador - Categoria:", selected_vistoriador)
+    DT::datatable(vistoriador_table, options = list(pageLength = 12), caption = title)
+  } else {
+    vistoriador_table <- dados %>%
+      group_by(`Região Integração`, Vistoriador) %>%
+      summarise(contagem = n()) %>%
+      ungroup()
+    
+    DT::datatable(vistoriador_table, options = list(pageLength = 12), 
+                  caption = "Tabela Geral de Vistoriador por Região Integração")
+  }
+})
+
+#Para implementar um drill-down interativo entre o gráfico e a tabela, 
+#o que você deseja é que, ao clicar em uma barra do gráfico, a tabela abaixo 
+#seja atualizada para mostrar dados mais específicos relacionados àquela barra.
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
+# Gráfico Agente de Trânsito
   output$grafico_aft <- renderPlotly({
-    
     if ("AFT" %in% colnames(dados)) {
       
       aft_count <- dados %>%
@@ -259,23 +322,23 @@ server <- function(input, output, session) {
         summarise(contagem = n())
       
       aft_count <- aft_count %>%
-        mutate(percentual = contagem / sum(contagem) * 100)
-      
-      
+        mutate(percentual = contagem / sum(contagem) * 100) %>%
+        mutate(AFT = forcats::fct_relevel(AFT, "Sim", after = 0)) 
       p2 <- ggplot(aft_count, aes(x = AFT, y = contagem, fill = AFT)) +
         geom_bar(stat = "identity", show.legend = FALSE) +
         geom_text(aes(label = paste0(round(percentual, 1), "%")), 
                   position = position_stack(vjust = 0.5), color = "white") +
         labs(title = "", x = "", y = "N° de Ciretrans") +
         theme_minimal()
-  
+      
       ggplotly(p2)
     }
   })
-  
-  
-  output$grafico_auxiliar <- renderPlotly({
-    
+#------------------------------------------------------------------------------# 
+
+#------------------------------------------------------------------------------#
+# Gráfico Auxiliar
+output$grafico_auxiliar <- renderPlotly({
     if ("Auxiliar" %in% colnames(dados)) {
       
       auxiliar_count <- dados %>%
@@ -283,11 +346,11 @@ server <- function(input, output, session) {
         summarise(contagem = n())
       
       auxiliar_count <- auxiliar_count %>%
-        mutate(percentual = contagem / sum(contagem) * 100)
-      
+        mutate(percentual = contagem / sum(contagem) * 100) %>%
+        mutate(Auxiliar = forcats::fct_relevel(Auxiliar, "Sim", after = 0))  
       
       p3 <- ggplot(auxiliar_count, aes(x = Auxiliar, y = contagem, fill = Auxiliar)) +
-        geom_bar(stat = "identity", show.legend = FALSE) +
+        geom_bar(stat = "identity") +
         geom_text(aes(label = paste0(round(percentual, 1), "%")), 
                   position = position_stack(vjust = 0.5), color = "white") +
         labs(title = "", x = "", y = "N° de Ciretrans") +
@@ -296,24 +359,32 @@ server <- function(input, output, session) {
       ggplotly(p3)
     }
   })
+#------------------------------------------------------------------------------#
+# Gráfico Assistente 
+  output$grafico_assistente <- renderPlotly({
+    
+    if ("Assistente" %in% colnames(dados)) {
+      
+      assistente_count <- dados %>%
+        group_by(Assistente) %>%
+        summarise(contagem = n())
+      
+      assistente_count <- assistente_count %>%
+        mutate(percentual = contagem / sum(contagem) * 100) %>%
+        mutate(Assistente = forcats::fct_relevel(Assistente, "Sim", after = 0))
+      p4 <- ggplot(assistente_count, aes(x = Assistente, y = contagem, fill = Assistente)) +
+        geom_bar(stat = "identity") +
+        geom_text(aes(label = paste0(round(percentual, 1), "%")), 
+                  position = position_stack(vjust = 0.5), color = "white") +
+        labs(title = "", x = "", y = "N° de Ciretrans") +
+        theme_minimal()
+      
+      ggplotly(p4)
+    }
+  })
+#------------------------------------------------------------------------------#
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
 }
 
 #-------------------------------------------------------------------------------
