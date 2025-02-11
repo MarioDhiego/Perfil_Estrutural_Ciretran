@@ -4,6 +4,7 @@
 library(readr)
 library(readxl)
 library(dplyr)
+library(tidyr)
 library(curl)
 library(plyr)
 library(shiny)
@@ -38,7 +39,7 @@ library(echarts4r)
 library(memoise)  # Pacote para caching
 #-------------------------------------------------------------------------------
 # Carregar Dados
-setwd("C:/Users/mario.valente/Documents/github_2024/Perfil_Estrutural_Ciretran-main")
+setwd("C:/Users/usuario/Documents/Perfil_Estrutural_Cretran")
 dados <- read_excel("Banco_Pesquisa_Ciretran.xlsx")
 
 #colnames(dados)
@@ -176,10 +177,6 @@ ui <- dashboardPage(title = "Dashboard", skin = "blue",
                                    )
                                  )
                         ),
-                        
-                        
-                        
-                        
                       )
                       )
                       ),
@@ -279,109 +276,125 @@ output$grafico_vistoriador <- renderPlotly({
     return(plotly_p1)
   }
 })
+
+
+
 #------------------------------------------------------------------------------#
 # Tabela Vistoriador por Região Integração
 
+#------------------------------------------------------------------------------#
+# Tabela Vistoriador por Região Integração (Corrigindo totais)
+
 output$tabela_vistoriador <- renderDT({
-  click_data <- event_data("plotly_click")
+  # Excluir os valores NA para Vistoriador
+  vistoriador_table <- dados %>%
+    filter(!is.na(Vistoriador)) %>%  # Filtrando os NAs
+    group_by(`Região Integração`, Vistoriador) %>%
+    summarise(contagem = n(), .groups = 'drop')
   
-  if (!is.null(click_data)) {
-    selected_vistoriador <- click_data$x
-    
-    vistoriador_table <- dados %>%
-      filter(Vistoriador == selected_vistoriador) %>%
-      group_by(`Região Integração`, Vistoriador) %>%
-      summarise(contagem = n()) %>%
-      ungroup()
-    
-    title <- paste("Tabela de Vistoriador - Categoria:", selected_vistoriador)
-    DT::datatable(vistoriador_table, options = list(pageLength = 12), caption = title)
-  } else {
-    vistoriador_table <- dados %>%
-      group_by(`Região Integração`, Vistoriador) %>%
-      summarise(contagem = n()) %>%
-      ungroup()
-    
-    DT::datatable(vistoriador_table, options = list(pageLength = 12), 
-                  caption = "Tabela Geral de Vistoriador por Região Integração")
-  }
+  # Criar tabela de contingência (pivotar os dados)
+  vistoriador_table <- vistoriador_table %>%
+    pivot_wider(names_from = Vistoriador, values_from = contagem, values_fill = list(contagem = 0))
+  
+  # Adicionar totais das linhas (por região)
+  vistoriador_table <- vistoriador_table %>%
+    rowwise() %>%
+    mutate(Total = sum(c_across(where(is.numeric)), na.rm = TRUE)) %>%
+    ungroup() # remover o agrupamento
+  
+  # Agora, adicionar a linha "Total Geral" no final (soma de todas as regiões)
+  total_geral <- vistoriador_table %>%
+    summarise(across(c(2, 3, 4), sum, na.rm = TRUE)) %>%
+    mutate(`Região Integração` = "Total Geral") %>%
+    select(`Região Integração`, everything()) # reorganiza para que "Total Geral" fique na primeira coluna
+  
+  # Adiciona a linha "Total Geral" na tabela
+  vistoriador_table <- bind_rows(vistoriador_table, total_geral)
+  
+  # Renderizar a tabela com DT
+  DT::datatable(vistoriador_table, options = list(pageLength = 13)
+                #,caption = "Tabela Geral de Vistoriador por Região Integração"
+                )
 })
 
-#Para implementar um drill-down interativo entre o gráfico e a tabela, 
-#o que você deseja é que, ao clicar em uma barra do gráfico, a tabela abaixo 
-#seja atualizada para mostrar dados mais específicos relacionados àquela barra.
-#------------------------------------------------------------------------------#
+
+
+
 
 #------------------------------------------------------------------------------#
 # Gráfico Agente de Trânsito
-  output$grafico_aft <- renderPlotly({
-    if ("AFT" %in% colnames(dados)) {
-      
-      aft_count <- dados %>%
-        group_by(AFT) %>%
-        summarise(contagem = n())
-      
-      aft_count <- aft_count %>%
-        mutate(percentual = contagem / sum(contagem) * 100) %>%
-        mutate(AFT = forcats::fct_relevel(AFT, "Sim", after = 0)) 
-      p2 <- ggplot(aft_count, aes(x = AFT, y = contagem, fill = AFT)) +
-        geom_bar(stat = "identity", show.legend = FALSE) +
-        geom_text(aes(label = paste0(round(percentual, 1), "%")), 
-                  position = position_stack(vjust = 0.5), color = "white") +
-        labs(title = "", x = "", y = "N° de Ciretrans") +
-        theme_minimal()
-      
-      ggplotly(p2)
-    }
-  })
-#------------------------------------------------------------------------------# 
+output$grafico_aft <- renderPlotly({
+  if ("AFT" %in% colnames(dados)) {
+    
+    aft_count <- dados %>%
+      group_by(AFT) %>%
+      summarise(contagem = n())
+    
+    aft_count <- aft_count %>%
+      mutate(percentual = contagem / sum(contagem) * 100) %>%
+      mutate(AFT = forcats::fct_relevel(AFT, "Sim", after = 0)) 
+    p2 <- ggplot(aft_count, aes(x = AFT, y = contagem, fill = AFT)) +
+      geom_bar(stat = "identity", show.legend = FALSE) +
+      geom_text(aes(label = paste0(round(percentual, 1), "%")), 
+                position = position_stack(vjust = 0.5), color = "white") +
+      labs(title = "Distribuição por Agente de Trânsito", x = "", y = "N° de Ciretrans") +
+      theme_minimal()
+    
+    ggplotly(p2)
+  }
+})
+
+
+
 
 #------------------------------------------------------------------------------#
 # Gráfico Auxiliar
 output$grafico_auxiliar <- renderPlotly({
-    if ("Auxiliar" %in% colnames(dados)) {
-      
-      auxiliar_count <- dados %>%
-        group_by(Auxiliar) %>%
-        summarise(contagem = n())
-      
-      auxiliar_count <- auxiliar_count %>%
-        mutate(percentual = contagem / sum(contagem) * 100) %>%
-        mutate(Auxiliar = forcats::fct_relevel(Auxiliar, "Sim", after = 0))  
-      
-      p3 <- ggplot(auxiliar_count, aes(x = Auxiliar, y = contagem, fill = Auxiliar)) +
-        geom_bar(stat = "identity") +
-        geom_text(aes(label = paste0(round(percentual, 1), "%")), 
-                  position = position_stack(vjust = 0.5), color = "white") +
-        labs(title = "", x = "", y = "N° de Ciretrans") +
-        theme_minimal()
-      
-      ggplotly(p3)
-    }
-  })
+  if ("Auxiliar" %in% colnames(dados)) {
+    
+    auxiliar_count <- dados %>%
+      group_by(Auxiliar) %>%
+      summarise(contagem = n())
+    
+    auxiliar_count <- auxiliar_count %>%
+      mutate(percentual = contagem / sum(contagem) * 100) %>%
+      mutate(Auxiliar = forcats::fct_relevel(Auxiliar, "Sim", after = 0))  
+    
+    p3 <- ggplot(auxiliar_count, aes(x = Auxiliar, y = contagem, fill = Auxiliar)) +
+      geom_bar(stat = "identity") +
+      geom_text(aes(label = paste0(round(percentual, 1), "%")), 
+                position = position_stack(vjust = 0.5), color = "white") +
+      labs(title = "Distribuição por Auxiliar", x = "", y = "N° de Ciretrans") +
+      theme_minimal()
+    
+    ggplotly(p3)
+  }
+})
+#------------------------------------------------------------------------------# 
+
 #------------------------------------------------------------------------------#
 # Gráfico Assistente 
-  output$grafico_assistente <- renderPlotly({
+output$grafico_assistente <- renderPlotly({
+  
+  if ("Assistente" %in% colnames(dados)) {
     
-    if ("Assistente" %in% colnames(dados)) {
-      
-      assistente_count <- dados %>%
-        group_by(Assistente) %>%
-        summarise(contagem = n())
-      
-      assistente_count <- assistente_count %>%
-        mutate(percentual = contagem / sum(contagem) * 100) %>%
-        mutate(Assistente = forcats::fct_relevel(Assistente, "Sim", after = 0))
-      p4 <- ggplot(assistente_count, aes(x = Assistente, y = contagem, fill = Assistente)) +
-        geom_bar(stat = "identity") +
-        geom_text(aes(label = paste0(round(percentual, 1), "%")), 
-                  position = position_stack(vjust = 0.5), color = "white") +
-        labs(title = "", x = "", y = "N° de Ciretrans") +
-        theme_minimal()
-      
-      ggplotly(p4)
-    }
-  })
+    assistente_count <- dados %>%
+      group_by(Assistente) %>%
+      summarise(contagem = n())
+    
+    assistente_count <- assistente_count %>%
+      mutate(percentual = contagem / sum(contagem) * 100) %>%
+      mutate(Assistente = forcats::fct_relevel(Assistente, "Sim", after = 0))
+    p4 <- ggplot(assistente_count, aes(x = Assistente, y = contagem, fill = Assistente)) +
+      geom_bar(stat = "identity") +
+      geom_text(aes(label = paste0(round(percentual, 1), "%")), 
+                position = position_stack(vjust = 0.5), color = "white") +
+      labs(title = "Distribuição por Assistente", x = "", y = "N° de Ciretrans") +
+      theme_minimal()
+    
+    ggplotly(p4)
+  }
+})
 #------------------------------------------------------------------------------#
   
 
