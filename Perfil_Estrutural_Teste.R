@@ -148,24 +148,43 @@ ui <- dashboardPage(title = "Dashboard", skin = "blue",
                                    )
                                  )
                         ),
-
                         tabPanel("AFT",
                                  fluidRow(
+                                   column(
+                                     width = 7,  # 50% da largura da tela
                         box(
-                          title = "Agente de Trânsito", width = 7,status = "primary", solidHeader = TRUE, collapsible = TRUE,
+                          title = "Agente de Fiscalização de Trânsito", width = 12,status = "primary", solidHeader = TRUE, collapsible = TRUE,
                           plotlyOutput("grafico_aft")  %>% withSpinner(color = "#17a2b8")
                         )
+                        ),
+                        column(
+                          width = 5,  # 50% da largura da tela
+                          box(
+                            title = "AFT X Região de Integração", width = 12, status = "primary", solidHeader = TRUE, collapsible = TRUE,
+                            DTOutput("tabela_aft")
+                          )
                         )
                         )
-                        ,
+                        ),
                         tabPanel("Auxiliar",
                                  fluidRow(
-                        
+                                   column(
+                                     width = 7,  # 50% da largura da tela
                         box(
-                          title = "Auxiliar de Trânsito", width = 7, status = "primary", solidHeader = TRUE, collapsible = TRUE,
+                          title = "Auxiliar de Trânsito", width = 12, status = "primary", solidHeader = TRUE, collapsible = TRUE,
                           plotlyOutput("grafico_auxiliar")  %>% withSpinner(color = "#17a2b8")
                         )
-                                 )
+                        ),
+                        column(
+                          width = 5,  # 50% da largura da tela
+                          box(
+                            title = "Auxiliar X Região de Integração", width = 12, status = "primary", solidHeader = TRUE, collapsible = TRUE,
+                            DTOutput("tabela_auxiliar")
+                          )
+                        )
+                        
+                        
+                        )
                         ),
                         
                         tabPanel("Assistente",
@@ -256,6 +275,7 @@ observeEvent(input$reset_button, {
 output$grafico_vistoriador <- renderPlotly({
   if ("Vistoriador" %in% colnames(dados)) {
     vistoriador_count <- dados %>%
+      filter(!is.na(Vistoriador)) %>%  # Filtrando os NAs
       group_by(Vistoriador) %>%
       summarise(contagem = n()) %>%
       mutate(percentual = contagem / sum(contagem) * 100)
@@ -264,10 +284,10 @@ output$grafico_vistoriador <- renderPlotly({
       mutate(Vistoriador = forcats::fct_relevel(Vistoriador, "Sim", after = 0))
     
     p1 <- ggplot(vistoriador_count, aes(x = Vistoriador, y = contagem, fill = Vistoriador)) +
-      geom_bar(stat = "identity") +
+      geom_bar(stat = "identity", , show.legend = FALSE) +
       geom_text(aes(label = paste0(round(percentual, 1), "%")), 
-                vjust = -0.5, color = "black") +
-      labs(title = "Distribuição por Vistoriador", x = "Vistoriador", y = "N° de Ciretrans") +
+                position = position_stack(vjust = 0.5), color = "black") +
+      labs(title = "", x = "Vistoriador Fixo", y = "N° de Ciretrans") +
       theme_minimal()
     
     plotly_p1 <- ggplotly(p1) %>%
@@ -276,12 +296,6 @@ output$grafico_vistoriador <- renderPlotly({
     return(plotly_p1)
   }
 })
-
-
-
-#------------------------------------------------------------------------------#
-# Tabela Vistoriador por Região Integração
-
 #------------------------------------------------------------------------------#
 # Tabela Vistoriador por Região Integração (Corrigindo totais)
 
@@ -325,25 +339,57 @@ output$tabela_vistoriador <- renderDT({
 # Gráfico Agente de Trânsito
 output$grafico_aft <- renderPlotly({
   if ("AFT" %in% colnames(dados)) {
-    
     aft_count <- dados %>%
+      filter(!is.na(AFT)) %>%  # Filtrando os NAs
       group_by(AFT) %>%
       summarise(contagem = n())
     
     aft_count <- aft_count %>%
       mutate(percentual = contagem / sum(contagem) * 100) %>%
       mutate(AFT = forcats::fct_relevel(AFT, "Sim", after = 0)) 
+    
     p2 <- ggplot(aft_count, aes(x = AFT, y = contagem, fill = AFT)) +
       geom_bar(stat = "identity", show.legend = FALSE) +
       geom_text(aes(label = paste0(round(percentual, 1), "%")), 
-                position = position_stack(vjust = 0.5), color = "white") +
-      labs(title = "Distribuição por Agente de Trânsito", x = "", y = "N° de Ciretrans") +
+                position = position_stack(vjust = 0.5), color = "black") +
+      labs(title = "", x = "Agentes de Trânsito Fixo", y = "N° de Ciretrans") +
       theme_minimal()
     
     ggplotly(p2)
   }
 })
 
+output$tabela_aft <- renderDT({
+  # Excluir os valores NA para Vistoriador
+  aft_table <- dados %>%
+    filter(!is.na(AFT)) %>%  # Filtrando os NAs
+    group_by(`Região Integração`, AFT) %>%
+    summarise(contagem = n(), .groups = 'drop')
+  
+  # Criar tabela de contingência (pivotar os dados)
+  aft_table <- aft_table %>%
+    pivot_wider(names_from = AFT, values_from = contagem, values_fill = list(contagem = 0))
+  
+  # Adicionar totais das linhas (por região)
+  aft_table <- aft_table %>%
+    rowwise() %>%
+    mutate(Total = sum(c_across(where(is.numeric)), na.rm = TRUE)) %>%
+    ungroup() # remover o agrupamento
+  
+  # Agora, adicionar a linha "Total Geral" no final (soma de todas as regiões)
+  total_geral <- aft_table %>%
+    summarise(across(c(2, 3, 4), sum, na.rm = TRUE)) %>%
+    mutate(`Região Integração` = "Total Geral") %>%
+    select(`Região Integração`, everything()) # reorganiza para que "Total Geral" fique na primeira coluna
+  
+  # Adiciona a linha "Total Geral" na tabela
+  aft_table <- bind_rows(aft_table, total_geral)
+  
+  # Renderizar a tabela com DT
+  DT::datatable(aft_table, options = list(pageLength = 13)
+                #,caption = "Tabela Geral de Vistoriador por Região Integração"
+  )
+})
 
 
 
@@ -353,6 +399,7 @@ output$grafico_auxiliar <- renderPlotly({
   if ("Auxiliar" %in% colnames(dados)) {
     
     auxiliar_count <- dados %>%
+      filter(!is.na(Auxiliar)) %>%  # Excluir valores NA da variável AFT
       group_by(Auxiliar) %>%
       summarise(contagem = n())
     
@@ -363,13 +410,46 @@ output$grafico_auxiliar <- renderPlotly({
     p3 <- ggplot(auxiliar_count, aes(x = Auxiliar, y = contagem, fill = Auxiliar)) +
       geom_bar(stat = "identity") +
       geom_text(aes(label = paste0(round(percentual, 1), "%")), 
-                position = position_stack(vjust = 0.5), color = "white") +
-      labs(title = "Distribuição por Auxiliar", x = "", y = "N° de Ciretrans") +
+                position = position_stack(vjust = 0.5), color = "black") +
+      labs(title = "", x = "", y = "N° de Ciretrans") +
       theme_minimal()
     
     ggplotly(p3)
   }
 })
+
+output$tabela_auxiliar <- renderDT({
+  auxiliar_table <- dados %>%
+    filter(!is.na(Auxiliar)) %>%  # Excluir valores NA da variável Auxiliar
+    group_by(`Região Integração`, Auxiliar) %>%
+    summarise(contagem = n(), .groups = 'drop')
+  
+  # Criar tabela de contingência (pivotar os dados)
+  auxiliar_table <- auxiliar_table %>%
+    pivot_wider(names_from = Auxiliar, values_from = contagem, values_fill = list(contagem = 0))
+  
+  # Adicionar totais das linhas (por região)
+  auxiliar_table <- auxiliar_table %>%
+    rowwise() %>%
+    mutate(Total = sum(c_across(where(is.numeric)), na.rm = TRUE)) %>%
+    ungroup() # Remover agrupamento
+  
+  # Agora, adicionar a linha "Total Geral" no final (soma de todas as regiões)
+  total_geral_auxiliar <- auxiliar_table %>%
+    summarise(across(c(2, 3, 4), sum, na.rm = TRUE)) %>%
+    mutate(`Região Integração` = "Total Geral") %>%
+    select(`Região Integração`, everything()) # Reorganizar para que "Total Geral" fique na primeira coluna
+  
+  # Adiciona a linha "Total Geral" na tabela
+  auxiliar_table <- bind_rows(auxiliar_table, total_geral_auxiliar)
+  
+  # Renderizar a tabela com DT
+  DT::datatable(auxiliar_table, options = list(pageLength = 13)
+                #, caption = "Tabela Geral de Auxiliar por Região Integração"
+                )
+})
+
+
 #------------------------------------------------------------------------------# 
 
 #------------------------------------------------------------------------------#
@@ -388,13 +468,44 @@ output$grafico_assistente <- renderPlotly({
     p4 <- ggplot(assistente_count, aes(x = Assistente, y = contagem, fill = Assistente)) +
       geom_bar(stat = "identity") +
       geom_text(aes(label = paste0(round(percentual, 1), "%")), 
-                position = position_stack(vjust = 0.5), color = "white") +
-      labs(title = "Distribuição por Assistente", x = "", y = "N° de Ciretrans") +
+                position = position_stack(vjust = 0.5), color = "black") +
+      labs(title = "", x = "", y = "N° de Ciretrans") +
       theme_minimal()
     
     ggplotly(p4)
   }
 })
+
+output$tabela_assistente <- renderDT({
+  assistente_table <- dados %>%
+    filter(!is.na(Assistente)) %>%  # Excluir valores NA da variável Assistente
+    group_by(`Região Integração`, Assistente) %>%
+    summarise(contagem = n(), .groups = 'drop')
+  
+  # Criar tabela de contingência (pivotar os dados)
+  assistente_table <- assistente_table %>%
+    pivot_wider(names_from = Assistente, values_from = contagem, values_fill = list(contagem = 0))
+  
+  # Adicionar totais das linhas (por região)
+  assistente_table <- assistente_table %>%
+    rowwise() %>%
+    mutate(Total = sum(c_across(where(is.numeric)), na.rm = TRUE)) %>%
+    ungroup() # Remover agrupamento
+  
+  # Agora, adicionar a linha "Total Geral" no final (soma de todas as regiões)
+  total_geral_assistente <- assistente_table %>%
+    summarise(across(c(2, 3, 4), sum, na.rm = TRUE)) %>%
+    mutate(`Região Integração` = "Total Geral") %>%
+    select(`Região Integração`, everything()) # Reorganizar para que "Total Geral" fique na primeira coluna
+  
+  # Adiciona a linha "Total Geral" na tabela
+  assistente_table <- bind_rows(assistente_table, total_geral_assistente)
+  
+  # Renderizar a tabela com DT
+  DT::datatable(assistente_table, options = list(pageLength = 13), caption = "Tabela Geral de Assistente por Região Integração")
+})
+
+
 #------------------------------------------------------------------------------#
   
 
