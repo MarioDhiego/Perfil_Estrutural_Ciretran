@@ -39,11 +39,10 @@ library(echarts4r)
 library(memoise)  # Pacote para caching
 #-------------------------------------------------------------------------------
 # Carregar Dados
-setwd("C:/Users/usuario/Documents/Perfil_Estrutural_Cretran")
-dados <- read_excel("Banco_Pesquisa_Ciretran.xlsx")
+#setwd("C:/Users/usuario/Documents/Perfil_Estrutural_Cretran")
+dados <- read_excel("C:/Users/usuario/Documents/Perfil_Estrutural_Cretran/Banco_Pesquisa_Ciretran.xlsx")
 
 #colnames(dados)
-
 gerar_grafico <- function(dados, x_var, fill_var, title, order = "asc") {
   # Verificar se a coluna está presente nos dados
   if (!(x_var %in% colnames(dados))) {
@@ -71,78 +70,56 @@ gerar_grafico <- function(dados, x_var, fill_var, title, order = "asc") {
 #-------------------------------------------------------------------------------
 # UI
 
-ui <- dashboardPage(title = "Dashboard", skin = "blue",
-                    dashboardHeader(title = "PERFIL DAS CIRETRANS", titleWidth = 300,
-                                    tags$li(class = "dropdown",style = "margin-right: 15px; display: inline-block;",  
-                                            a(href = "https://www.facebook.com/detranPARA", class = "fa fa-facebook fa-lg", target = "_blank", title = "Facebook", style = "color: #3b5998; transition: color 0.3s;"),
-                                            tags$style(HTML(".fa-facebook:hover {color: #8b9dc3;}"))),
-                                    tags$li(class = "dropdown",style = "margin-right: 15px; display: inline-block;", 
-                                            a(href = "https://www.instagram.com/detranpa_", class = "fa fa-instagram", target = "_blank", title = "InstaGram",style = "color: #e1306c; transition: color 0.3s;"),
-                                            tags$style(HTML(".fa-instagram:hover {color: #fd1d1d;}"))),
-                                    tags$li(class = "dropdown",style = "margin-right: 15px; display: inline-block;", 
-                                            a(href = "https://twitter.com/DETRAN_PA",class = "fa fa-twitter",target = "_blank",title = "Twitter",
-                                              style = "color: #1da1f2; transition: color 0.3s;"),tags$style(HTML(".fa-twitter:hover {color: #0d95e8;}"))),
-                                    tags$li(class = "dropdown",style = "margin-right: 15px; display: inline-block;", 
-                                            a(href = "https://github.com/MarioDhiego", icon("github"), "Suporte", target = "_blank", title = "Suporte",style = "color: #333; transition: color 0.3s;"),
-                                            tags$style(HTML(".fa-github:hover {color: #6e6e6e;}")))
+ui <- dashboardPage(
+  title = "Dashboard", skin = "blue",
+  dashboardHeader(title = "PERFIL DAS CIRETRANS", titleWidth = 300,
+                  tags$li(class = "dropdown",style = "margin-right: 15px; display: inline-block;",
+                          a(href = "https://www.facebook.com/detranPARA", class = "fa fa-facebook fa-lg", target = "_blank", title = "Facebook", style = "color: #3b5998; transition: color 0.3s;"),
+                  tags$style(HTML(".fa-facebook:hover {color: #8b9dc3;}"))),
+                  tags$li(class = "dropdown",style = "margin-right: 15px; display: inline-block;", 
+                          a(href = "https://www.instagram.com/detranpa_", class = "fa fa-instagram", target = "_blank", title = "InstaGram",style = "color: #e1306c; transition: color 0.3s;"),
+                  tags$style(HTML(".fa-instagram:hover {color: #fd1d1d;}"))),
+                  tags$li(class = "dropdown",style = "margin-right: 15px; display: inline-block;", 
+                          a(href = "https://twitter.com/DETRAN_PA",class = "fa fa-twitter",target = "_blank",title = "Twitter",
+                            style = "color: #1da1f2; transition: color 0.3s;"),tags$style(HTML(".fa-twitter:hover {color: #0d95e8;}"))),
+                  tags$li(class = "dropdown",style = "margin-right: 15px; display: inline-block;", 
+                          a(href = "https://github.com/MarioDhiego", icon("github"), "Suporte", target = "_blank", title = "Suporte",style = "color: #333; transition: color 0.3s;"),
+                  tags$style(HTML(".fa-github:hover {color: #6e6e6e;}")))
                     ),
-                    dashboardSidebar(
-                      tags$img(
-                        src = "detran1.jpeg",
-                        width = 230,
-                        height = 120
-                      ),
-                      sidebarMenu(
-                        menuItem("RECURSOS HUMANOS", tabName = "socio1", icon = icon("book")),
-                        menuItem("EQUIPAMENTOS", tabName = "coleta1", icon = icon("wrench")),
-                        menuItem("SERVIÇOS", tabName = "destino1", icon = icon("tasks")),
-                        menuItem("ESTRUTURAL", tabName = "estrutura1", icon = icon("building")),
-                        menuItem("VISITA TÉCNICA", tabName = "visita1", icon = icon("book")),
-                        selectInput("municipio", "MUNICÍPIOS:", 
-                                    choices = unique(dados$Municípios), 
-                                    selected = unique(dados$Municípios)[56]),
-                        selectInput("regiao", "REGIÃO DE INTEGRAÇÃO:", 
-                                    choices = unique(dados$`Região Integração`), 
-                                    selected = unique(dados$`Região Integração`)[1]),
-                        selectInput("tipo_ciretran", "TIPO DE CIRETRAN:", 
-                                    choices = unique(dados$`Tipo Ciretran`), 
-                                    selected = unique(dados$`Tipo Ciretran`)[1]),
-                        selectInput("situacao_imovel", "SITUAÇÃO DO IMÓVEL:", 
-                                    choices = unique(dados$`Situação do Imóvel`), 
-                                    selected = unique(dados$`Situação do Imóvel`)[1]),
-                        actionButton("reset_button", "Reiniciar Filtros", class = "btn-success")
-                      )
-                    ),
-                    dashboardBody(
-                      tags$style(".btn-success { background-color: #004c99; color: white; border: none; }"),
-                      fluidRow(
-                        valueBoxOutput("valuebox_servidores", width = 3),
-                        valueBoxOutput("valuebox_agentes", width = 3),
-                        valueBoxOutput("valuebox_vistoriador", width = 3),
-                        valueBoxOutput("valuebox_assistente", width = 3)
-                      ),
-                      
-                      
-                      tabItem(
-                        tabName = "analises",
-                      fluidRow(
-                        tabBox(title = "", width = 12,
-                               
-                              
-                        
-                        tabPanel("Vistoriador",
-                                 fluidRow(
-                                   column(
-                                     width = 7,  # 50% da largura da tela
-                                     box(
-                                       title = "Vistoriador de Trânsito", width = 12, status = "primary", solidHeader = TRUE, collapsible = TRUE,
+  dashboardSidebar(tags$img(src = "detran1.jpeg",width = 230,height = 130),
+    sidebarMenu(
+      menuItem("RECURSOS HUMANOS", tabName = "socio1", icon = icon("book")),
+      menuItem("EQUIPAMENTOS", tabName = "equipamento1", icon = icon("wrench")),
+      menuItem("SERVIÇOS", tabName = "servico1", icon = icon("tasks")),
+      menuItem("ESTRUTURAL", tabName = "estrutura1", icon = icon("building")),
+      menuItem("VISITA TÉCNICA", tabName = "visita1", icon = icon("book")),
+      selectInput("municipio","MUNICÍPIOS:", choices = unique(dados$Municípios),selected = unique(dados$Municípios)[56]),
+      selectInput("regiao","REGIÃO DE INTEGRAÇÃO:",choices = unique(dados$`Região Integração`),selected = unique(dados$`Região Integração`)[1]),
+      selectInput("tipo_ciretran","TIPO DE CIRETRAN:",choices = unique(dados$`Tipo Ciretran`),selected = unique(dados$`Tipo Ciretran`)[1]),
+      selectInput("situacao_imovel","SITUAÇÃO DO IMÓVEL:",choices = unique(dados$`Situação do Imóvel`),selected = unique(dados$`Situação do Imóvel`)[1]),
+      actionButton("reset_button", "Reiniciar Filtros", class = "btn-success")
+      )
+    ),
+  dashboardBody(tags$style(".btn-success { background-color: #004c99; color: white; border: none; }"),
+                fluidRow(valueBoxOutput("valuebox_servidores", width = 2),
+                         valueBoxOutput("valuebox_comissionado", width = 2),
+                         valueBoxOutput("valuebox_analista", width = 2),
+                         valueBoxOutput("valuebox_agentes", width = 2),
+                         valueBoxOutput("valuebox_vistoriador", width = 2),
+                         valueBoxOutput("valuebox_assistente", width = 2)),
+                tabItems(
+                      tabItem(tabName = "socio1",
+                              fluidRow(
+                                tabBox(title = "", width = 12,
+                                       tabPanel("Vistoriador",
+                                                fluidRow(
+                                                  column(width = 7,
+                                                         box(title = "Vistoriador de Trânsito", width = 12, status = "primary", solidHeader = TRUE, collapsible = TRUE,
                                        plotlyOutput("grafico_vistoriador") %>% withSpinner(color = "#17a2b8")
                                      )
                                    ),
-                                   column(
-                                     width = 5,  # 50% da largura da tela
-                                     box(
-                                       title = "Tabela Vistoriador", width = 12, status = "primary", solidHeader = TRUE, collapsible = TRUE,
+                                   column(width = 5,
+                                          box(title = "Tabela Vistoriador", width = 12, status = "primary", solidHeader = TRUE, collapsible = TRUE,
                                        DTOutput("tabela_vistoriador")
                                      )
                                    )
@@ -182,28 +159,62 @@ ui <- dashboardPage(title = "Dashboard", skin = "blue",
                             DTOutput("tabela_auxiliar")
                           )
                         )
-                        
-                        
                         )
                         ),
-                        
                         tabPanel("Assistente",
                                  fluidRow(
-                                   
+                                   column(
+                                     width = 7,  # 50% da largura da tela
                                    box(
-                                     title = "Assistente de Trânsito", width = 7, status = "primary", solidHeader = TRUE, collapsible = TRUE,
+                                     title = "Assistente de Trânsito", width = 12, status = "primary", solidHeader = TRUE, collapsible = TRUE,
                                      plotlyOutput("grafico_assistente")  %>% withSpinner(color = "#17a2b8")
                                    )
+                                   ),
+                                   column(
+                                     width = 5,  # 50% da largura da tela
+                                     box(
+                                       title = "Auxiliar X Região de Integração", width = 12, status = "primary", solidHeader = TRUE, collapsible = TRUE,
+                                       DTOutput("tabela_assistente")
+                                     )
+                                   )
+                                   
+                                   
                                  )
                         ),
                       )
                       )
                       ),
-
-                      
-                      footer = dashboardFooter(left = "COPYRIGHT© 2025 DETRAN-PA - Todos os Direitos Reservados.", right = "Belém - PA")
+  tabItem(
+    tabName = "equipamento1",
+    tabPanel("Escala Likert de Equipamentos",
+             icon = icon("address-card"),
+             fluidRow(
+               box(width = 12,
+                   title = "Perfil de Equipamentos", status = "primary", solidHeader = TRUE, collapsible = TRUE, headerBorder = TRUE,
+                   tags$div(style = "display: flex; justify-content: center; align-items: center;",
+                            plotlyOutput("likertPlot1",width = "auto",height = "auto"))))
+                                 )
+                      ),
+  
+  tabItem(
+    tabName = "servico1",
+    tabPanel("Escala Likert de Serviços",
+             icon = icon("address-card"),
+             fluidRow(
+               box(width = 12,
+                   title = "Perfil de Serviços", status = "primary", solidHeader = TRUE, collapsible = TRUE, headerBorder = TRUE,
+                   tags$div(style = "display: flex; justify-content: center; align-items: center;",
+                            plotlyOutput("likertPlot2",width = "auto",height = "auto"))))
+    )
+  )
+  
+  
+  
+  
+                      )
                     )
 )
+
 
 #-------------------------------------------------------------------------------
 # SERVER
@@ -224,7 +235,7 @@ server <- function(input, output, session) {
     valueBox(
       formatC(total_servidores, format = "d", big.mark = ","), 
       "SERVIDORES", 
-      icon = icon("users"),
+      icon = icon("user-friends"),
       color = "aqua"
     )
   })
@@ -235,7 +246,7 @@ server <- function(input, output, session) {
     valueBox(
       formatC(total_agentes, format = "d", big.mark = ","), 
       "AGENTES DE TRÂNSITO", 
-      icon = icon("users"),
+      icon = icon("traffic-light"),
       color = "aqua"
     )
   })
@@ -246,7 +257,7 @@ server <- function(input, output, session) {
     valueBox(
       formatC(total_vistoriador, format = "d", big.mark = ","), 
       "VISTORIADOR", 
-      icon = icon("users"),
+      icon = icon("clipboard-check"), #clipboard #wrench
       color = "aqua"
     )
   })
@@ -257,10 +268,40 @@ server <- function(input, output, session) {
     valueBox(
       formatC(total_assistente, format = "d", big.mark = ","), 
       "ASSISTENTE DE TRÂNSITO", 
-      icon = icon("users"),
+      icon = icon("user-tie"), #user-tie
       color = "aqua"
     )
   })
+#------------------------------------------------------------------------------#
+# ValueBox de Analista
+  output$valuebox_analista <- renderValueBox({
+    total_analista <- sum(dados_filtrados()$N_Analista, na.rm = TRUE)
+    valueBox(
+      formatC(total_analista, format = "d", big.mark = ","), 
+      "ANALISTA DE TRÂNSITO", 
+      icon = icon("user-cog"),
+      color = "aqua"
+    )
+  })  
+#------------------------------------------------------------------------------#
+# ValueBox de Comissionado
+  output$valuebox_comissionado <- renderValueBox({
+    total_comissionado <- sum(dados_filtrados()$N_Comissionado, na.rm = TRUE)
+    valueBox(
+      formatC(total_comissionado, format = "d", big.mark = ","), 
+      "CARGO COMISSIONADO", 
+      icon = icon("cogs"),
+      color = "aqua"
+    )
+  })  
+  
+  
+  
+  
+  
+  
+  
+  
 #------------------------------------------------------------------------------#
 # Botão de Reset
 observeEvent(input$reset_button, {
@@ -457,8 +498,8 @@ output$tabela_auxiliar <- renderDT({
 output$grafico_assistente <- renderPlotly({
   
   if ("Assistente" %in% colnames(dados)) {
-    
     assistente_count <- dados %>%
+      filter(!is.na(Assistente)) %>%  # Excluir valores NA da variável Assistente
       group_by(Assistente) %>%
       summarise(contagem = n())
     
@@ -502,12 +543,132 @@ output$tabela_assistente <- renderDT({
   assistente_table <- bind_rows(assistente_table, total_geral_assistente)
   
   # Renderizar a tabela com DT
-  DT::datatable(assistente_table, options = list(pageLength = 13), caption = "Tabela Geral de Assistente por Região Integração")
+  DT::datatable(assistente_table, options = list(pageLength = 13)
+                #, caption = "Tabela Geral de Assistente por Região Integração"
+                )
+})
+#------------------------------------------------------------------------------#
+  
+
+#-------------------------------------------------------------------------------
+# Escala Likert
+
+output$likertPlot1 <- renderPlotly({
+  Dados_Clima <- readxl::read_excel("C:/Users/usuario/Documents/Perfil_Estrutural_Cretran/Dados_Clima.xls")
+  dados_filtrados <- Dados_Clima
+  dados_filtrados[, 1:14] <- lapply(dados_filtrados[, 1:14], 
+                                   factor, 
+                                   levels = 1:3,
+                                   labels = c("Sim", 
+                                              "Não", 
+                                              "Não Sei Informar"),
+                                   ordered = TRUE)
+  
+  # Carregar a tabela com os nomes das colunas
+  nomes <- read_excel("Dados_Clima.xls", sheet = 3)
+  colnames(dados_filtrados)[1:14] <- nomes$Nomes
+  
+  # Gerar o gráfico da escala Likert
+  dados_grafico <- likert(as.data.frame(dados_filtrados[1:14]))
+  
+  # Paleta de cores para o gráfico
+  paleta <- brewer.pal(n=5, "RdBu")
+  paleta[3] <- "lightblue"
+  
+  # Criar o Gráfico Likert
+  graficolikert1 <- likert.bar.plot(dados_grafico,strip = TRUE,strip.left = TRUE,ReferenceZero = 3,wrap = 25,centered = TRUE,text.size = 4, hjust = 0.5,
+                        legend = "Escala Likert",
+                        legend.position = "right", # top 
+                        auto.key = list(columns = 1, reverse.rows = TRUE),
+                        ordered = TRUE) +
+    labs(x = "", y = "FREQUÊNCIA (%)") +
+    scale_fill_manual(values = paleta) +
+    guides(fill = guide_legend(title = "Escala Likert")) +
+    theme_bw(base_size = 11) +
+    theme(
+      axis.text.y = element_text(size = 11),
+      axis.text.x = element_text(size = 11),
+      panel.grid = element_blank(),
+      plot.background = element_rect(fill = "white"),
+      plot.title = element_text(hjust = 0.5)  # Centraliza o título
+    )
+  # Obter as dimensões da janela do navegador
+  largura <- session$clientData$output_likertPlot1_width
+  altura <- session$clientData$output_likertPlot1_height
+  
+  ggplotly(graficolikert1) %>%
+    layout(
+      width = ifelse(is.null(largura), 800, largura),   # Largura dinâmica
+      height = ifelse(is.null(altura), 750, altura),    # Altura dinâmica
+      margin = list(l = 60, r = 80, t = 50, b = 100)   # Ajuste das margens internas
+    )
 })
 
 
-#------------------------------------------------------------------------------#
+
+output$likertPlot2 <- renderPlotly({
+  Dados_Clima <- readxl::read_excel("C:/Users/usuario/Documents/Perfil_Estrutural_Cretran/Dados_Clima.xls")
+  dados_filtrados <- Dados_Clima
+  dados_filtrados[, 15:5] <- lapply(dados_filtrados[, 15:25], 
+                                    factor, 
+                                    levels = 1:3,
+                                    labels = c("Sim", 
+                                               "Não", 
+                                               "Não Sei Informar"),
+                                    ordered = TRUE)
   
+  # Carregar a tabela com os nomes das colunas
+  nomes <- read_excel("Dados_Clima.xls", sheet = 3)
+  colnames(dados_filtrados)[15:25] <- nomes$Nomes2
+  
+  # Gerar o gráfico da escala Likert
+  dados_grafico <- likert(as.data.frame(dados_filtrados[15:25]))
+  
+  # Paleta de cores para o gráfico
+  paleta <- brewer.pal(n=5, "RdBu")
+  paleta[3] <- "lightblue"
+  
+  # Criar o Gráfico Likert
+  graficolikert2 <- likert.bar.plot(dados_grafico,strip = TRUE,strip.left = TRUE,ReferenceZero = 3,wrap = 25,centered = TRUE,text.size = 4, hjust = 0.5,
+                                    legend = "Escala Likert",
+                                    legend.position = "right", # top 
+                                    auto.key = list(columns = 1, reverse.rows = TRUE),
+                                    ordered = TRUE) +
+    labs(x = "", y = "FREQUÊNCIA (%)") +
+    scale_fill_manual(values = paleta) +
+    guides(fill = guide_legend(title = "Escala Likert")) +
+    theme_bw(base_size = 11) +
+    theme(
+      axis.text.y = element_text(size = 11),
+      axis.text.x = element_text(size = 11),
+      panel.grid = element_blank(),
+      plot.background = element_rect(fill = "white"),
+      plot.title = element_text(hjust = 0.5)  # Centraliza o título
+    )
+  # Obter as dimensões da janela do navegador
+  largura <- session$clientData$output_likertPlot1_width
+  altura <- session$clientData$output_likertPlot1_height
+  
+  ggplotly(graficolikert2) %>%
+    layout(
+      width = ifelse(is.null(largura), 700, largura),   # Largura dinâmica
+      height = ifelse(is.null(altura), 700, altura),    # Altura dinâmica
+      margin = list(l = 60, r = 80, t = 50, b = 100)   # Ajuste das margens internas
+    )
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
