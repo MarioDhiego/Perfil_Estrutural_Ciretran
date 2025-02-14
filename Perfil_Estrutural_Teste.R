@@ -90,8 +90,8 @@ ui <- dashboardPage(
     sidebarMenu(
       menuItem("RECURSOS HUMANOS", tabName = "socio1", icon = icon("book")),
       menuItem("EQUIPAMENTOS", tabName = "equipamento1", icon = icon("wrench")),
-      menuItem("SERVIÇOS", tabName = "servico1", icon = icon("tasks")),
       menuItem("ESTRUTURAL", tabName = "estrutura1", icon = icon("building")),
+      menuItem("SERVIÇOS", tabName = "servico1", icon = icon("tasks")),
       menuItem("VISITA TÉCNICA", tabName = "visita1", icon = icon("book")),
       selectInput("municipio","MUNICÍPIOS:", choices = unique(dados$Municípios),selected = unique(dados$Municípios)[56]),
       selectInput("regiao","REGIÃO DE INTEGRAÇÃO:",choices = unique(dados$`Região Integração`),selected = unique(dados$`Região Integração`)[1]),
@@ -206,7 +206,19 @@ ui <- dashboardPage(
                    tags$div(style = "display: flex; justify-content: center; align-items: center;",
                             plotlyOutput("likertPlot2",width = "auto",height = "auto"))))
     )
+  ),
+  tabItem(
+    tabName = "estrutura1",
+    tabPanel("Escala Likert Estrutural",
+             icon = icon("address-card"),
+             fluidRow(
+               box(width = 12,
+                   title = "Perfil Estrtutural", status = "primary", solidHeader = TRUE, collapsible = TRUE, headerBorder = TRUE,
+                   tags$div(style = "display: flex; justify-content: center; align-items: center;",
+                            plotlyOutput("likertPlot3",width = "auto",height = "auto"))))
+    )
   )
+  
   
   
   
@@ -618,8 +630,8 @@ output$likertPlot2 <- renderPlotly({
                                     ordered = TRUE)
   
   # Carregar a tabela com os nomes das colunas
-  nomes <- read_excel("Dados_Clima.xls", sheet = 3)
-  colnames(dados_filtrados)[15:25] <- nomes$Nomes2
+  nomes2 <- read_excel("Dados_Clima.xls", sheet = 4)
+  colnames(dados_filtrados)[15:25] <- nomes2$Nomes2
   
   # Gerar o gráfico da escala Likert
   dados_grafico <- likert(as.data.frame(dados_filtrados[15:25]))
@@ -629,7 +641,8 @@ output$likertPlot2 <- renderPlotly({
   paleta[3] <- "lightblue"
   
   # Criar o Gráfico Likert
-  graficolikert2 <- likert.bar.plot(dados_grafico,strip = TRUE,strip.left = TRUE,ReferenceZero = 3,wrap = 25,centered = TRUE,text.size = 4, hjust = 0.5,
+  graficolikert2 <- likert.bar.plot(dados_grafico,strip = TRUE,strip.left = TRUE,
+                                    ReferenceZero = 3,wrap = 25,centered = TRUE,text.size = 4, hjust = 0.5,
                                     legend = "Escala Likert",
                                     legend.position = "right", # top 
                                     auto.key = list(columns = 1, reverse.rows = TRUE),
@@ -646,8 +659,8 @@ output$likertPlot2 <- renderPlotly({
       plot.title = element_text(hjust = 0.5)  # Centraliza o título
     )
   # Obter as dimensões da janela do navegador
-  largura <- session$clientData$output_likertPlot1_width
-  altura <- session$clientData$output_likertPlot1_height
+  largura <- session$clientData$output_likertPlot2_width
+  altura <- session$clientData$output_likertPlot2_height
   
   ggplotly(graficolikert2) %>%
     layout(
@@ -658,6 +671,57 @@ output$likertPlot2 <- renderPlotly({
 })
 
 
+output$likertPlot3 <- renderPlotly({
+  Dados_Clima <- readxl::read_excel("C:/Users/usuario/Documents/Perfil_Estrutural_Cretran/Dados_Clima.xls")
+  dados_filtrados <- Dados_Clima
+  dados_filtrados[, 26:39] <- lapply(dados_filtrados[, 26:39], 
+                                    factor, 
+                                    levels = 1:3,
+                                    labels = c("Sim", 
+                                               "Não", 
+                                               "Não Sei Informar"),
+                                    ordered = TRUE)
+  
+  # Carregar a tabela com os nomes das colunas
+  nomes3 <- read_excel("Dados_Clima.xls", sheet = 5)
+  colnames(dados_filtrados)[26:39] <- nomes3$Nomes3
+  
+  # Gerar o gráfico da escala Likert
+  dados_grafico <- likert(as.data.frame(dados_filtrados[26:39]))
+  
+  # Paleta de cores para o gráfico
+  paleta <- brewer.pal(n=5, "RdBu")
+  paleta[3] <- "lightblue"
+  
+  # Criar o Gráfico Likert
+  graficolikert3 <- likert.bar.plot(dados_grafico,strip = TRUE,strip.left = TRUE,
+                                    ReferenceZero = 3,wrap = 25,centered = TRUE,text.size = 4, hjust = 0.5,
+                                    legend = "Escala Likert",
+                                    legend.position = "right", # top 
+                                    auto.key = list(columns = 1, reverse.rows = TRUE),
+                                    ordered = TRUE) +
+    labs(x = "", y = "FREQUÊNCIA (%)") +
+    scale_fill_manual(values = paleta) +
+    guides(fill = guide_legend(title = "Escala Likert")) +
+    theme_bw(base_size = 11) +
+    theme(
+      axis.text.y = element_text(size = 11),
+      axis.text.x = element_text(size = 11),
+      panel.grid = element_blank(),
+      plot.background = element_rect(fill = "white"),
+      plot.title = element_text(hjust = 0.5)  # Centraliza o título
+    )
+  # Obter as dimensões da janela do navegador
+  largura <- session$clientData$output_likertPlot3_width
+  altura <- session$clientData$output_likertPlot3_height
+  
+  ggplotly(graficolikert3) %>%
+    layout(
+      width = ifelse(is.null(largura), 700, largura),   # Largura dinâmica
+      height = ifelse(is.null(altura), 700, altura),    # Altura dinâmica
+      margin = list(l = 60, r = 80, t = 50, b = 100)   # Ajuste das margens internas
+    )
+})
 
 
 
