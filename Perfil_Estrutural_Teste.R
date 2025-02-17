@@ -202,9 +202,6 @@ ui <- dashboardPage(
     )
   ),
   dashboardBody(
-    tags$style(
-      ".btn-success { background-color: #004c99; color: white; border: none; }"
-    ),
     
     tabItems(
       tabItem(
@@ -216,6 +213,7 @@ ui <- dashboardPage(
             "CIRETRAN'S",
             icon = icon("address-card"),
             fluidRow(
+             
               column(
                 width = 8,
                 position = "left",
@@ -232,6 +230,7 @@ ui <- dashboardPage(
                 align = "left"
               ),
               column(
+                h3("CONCEITOS", align = "center"),
                 width = 4,
                 tags$br(),
                 tags$p(
@@ -251,7 +250,7 @@ ui <- dashboardPage(
                 tags$p(
                   style = "text-align: justify;font-si24pt",
                   strong(
-                    "As CIRETRANS tipo A realizam os mesmos serviços da Sede-Belém, já as CIRETRANS tipo B, com exceção de Canaã dos Carajás e Santa Izabel do Pará, não realizam exames de legislação e prático de trânsito, conforme disposto na Lei nº 7.594/2011, e possuem duas classificações de acordo com a Lei nº 7.594/2011 artigos 17 E 18:"
+                    "As CIRETRANS tipo A realizam os mesmos serviços da Sede-Belém, já as CIRETRANS tipo B, com exceção de Canaã dos Carajás e Santa Izabel do Pará, não realizam exames de legislação e prático de trânsito, conforme disposto na Lei nº 7.594/2011."
                   )
                 )
               )
@@ -260,6 +259,7 @@ ui <- dashboardPage(
           #===============================================================================#
           tabPanel("ATIVIDADES", icon = icon("hospital"), fluidRow(
             column(
+              h3("INTRODUÇÃO", align = "center"),
               width = 4,
               position = "center",
               solidHeader = TRUE,
@@ -282,7 +282,7 @@ ui <- dashboardPage(
               width = 4,
               position = "center",
               solidHeader = TRUE,
-              tags$br("ATIVIDADES"),
+              h3("ATIVIDADES", align = "center"),
               tags$br(),
               tags$p(
                 style = "text-align:justify;font-si20pt",
@@ -328,6 +328,7 @@ ui <- dashboardPage(
                        ),
                        tags$br(),
                        h3("OBJETIVOS ESPECÍFICOS", align = "center"),
+                       tags$br(),
                        tags$p(
                          style = "text-align:justify;font-si20pt",
                          strong(" ")
@@ -503,41 +504,8 @@ ui <- dashboardPage(
                 leafletOutput("mapa"),
               )
             )
-          ),
-          tabPanel(
-            "RESPONSÁVEL TÉCNICO",
-            fluidRow(
-              column(
-                width = 5,
-                position = "center",
-                tags$br(),
-                h3("EQUIPE TÉCNICA", align = "center"),
-                tags$br(),
-                tags$p(
-                  style = "text-align: justify;font-si20pt",
-                  tags$br(),
-                  strong(
-                    "Projeto Perfil Estatístico das CIRETRAN'S, Desenvolvido na Coordenadoria do Núcleo de Planejamento, sob a tutela da Gerência de Estatística (Sr. Kleber Salim).
-",
-                    tags$br(),
-                    tags$a("", href = "kleber.salim@detran.pa.gov.br")
-                  ),
-                  tags$br(),
-                  strong(
-                    "O Projeto é Executado sob a Supervisão Técnica do Servidor, Analista de Trânsito, Sr:",
-                    tags$a("Mário Diego Valente (Estatístico)", href = "mario.valente@detran.pa.gov.br")
-                  )
-                ),
-                tags$br(),
-                tags$p(
-                  style = "text-align: justify;font-si20pt",
-                  strong(
-                    "Reclamações, sugestões, críticas e elogios relacionados ao Projeto do DETRAN-PA podem ser registrados na Gerência de Estatística de Trânsito."
-                  )
-                )
-              )
-            )
-          ),
+          )
+          
           
           
           
@@ -582,7 +550,11 @@ ui <- dashboardPage(
         ))
       ),
       
-      tabItem(tabName = "socio1", 
+      tabItem(tabName = "socio1",
+              tags$style(
+                ".btn-success { background-color: #004c99; color: white; border: none; }"
+              ),
+              
               fluidRow(
                 valueBoxOutput("valuebox_servidores", width = 2),
                 valueBoxOutput("valuebox_comissionado", width = 2),
