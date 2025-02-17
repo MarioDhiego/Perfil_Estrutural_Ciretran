@@ -40,7 +40,7 @@ library(memoise)  # Pacote para caching
 #-------------------------------------------------------------------------------
 # Carregar Dados
 #setwd("C:/Users/usuario/Documents/Perfil_Estrutural_Cretran")
-dados <- read_excel("C:/Users/usuario/Documents/Perfil_Estrutural_Cretran/Banco_Pesquisa_Ciretran.xlsx")
+dados <- read_excel("C:/Users/mario.valente/Documents/github_2024/Perfil_Estrutural_Ciretran-main/Banco_Pesquisa_Ciretran.xlsx")
 
 #colnames(dados)
 gerar_grafico <- function(dados, x_var, fill_var, title, order = "asc") {
@@ -88,6 +88,14 @@ ui <- dashboardPage(
                     ),
   dashboardSidebar(tags$img(src = "detran1.jpeg",width = 230,height = 130),
     sidebarMenu(
+      menuItem("PROJETO", 
+               tabName = "defprojeto", icon = icon("book"),
+               menuSubItem("Sobre Projeto", tabName = "sobre1", icon = icon("book")),
+               menuSubItem("Localização", tabName = "local1", icon = icon("video"))),
+      menuItem("CIRETRAN'S",
+               tabName = "catCiretran", icon = icon("book"),
+               menuSubItem("TIPO A", tabName = "tipoA", icon = icon("book")),
+               menuSubItem("TIPO B", tabName = "tipoB", icon = icon("book"))),
       menuItem("RECURSOS HUMANOS", tabName = "socio1", icon = icon("book")),
       menuItem("EQUIPAMENTOS", tabName = "equipamento1", icon = icon("wrench")),
       menuItem("ESTRUTURAL", tabName = "estrutura1", icon = icon("building")),
@@ -108,6 +116,50 @@ ui <- dashboardPage(
                          valueBoxOutput("valuebox_vistoriador", width = 2),
                          valueBoxOutput("valuebox_assistente", width = 2)),
                 tabItems(
+                    tabItem(
+                      tabName = "tipoA",
+                      tabPanel("TIPOS DE CIRETRAN'S",
+                               icon = icon("address-card"),
+                               fluidRow(
+                                 box(
+                                   width = 12,
+                                   title = tags$div("CIRETRAN DO TIPO A",
+                                                    style = "text-align: center"
+                                   ),
+                                   status = "primary",
+                                   solidHeader = TRUE,
+                                   collapsible = TRUE,
+                                   headerBorder = TRUE,
+                                   div(
+                                     class = "elemente",
+                                     DiagrammeROutput("ciretrantipoA")
+                                   )
+                                 )
+                               )
+                      )
+                    ),    
+                    tabItem(
+                      tabName = "tipoB",
+                      tabPanel("TIPOS DE CIRETRAN'S",
+                               icon = icon("address-card"),
+                               fluidRow(
+                                 box(
+                                   width = 12,
+                                   title = "CIRETRAN DO TIPO B",
+                                   style = "text-align: center",
+                                   status = "primary",
+                                   solidHeader = TRUE,
+                                   collapsible = TRUE,
+                                   headerBorder = TRUE,
+                                   div(
+                                     class = "elemente",
+                                     DiagrammeROutput("ciretrantipoB")
+                                   )
+                                 )
+                               )
+                      )
+                    ),
+
                       tabItem(tabName = "socio1",
                               fluidRow(
                                 tabBox(title = "", width = 12,
@@ -240,6 +292,79 @@ server <- function(input, output, session) {
       dados %>% filter(Municípios == input$municipio)
     }
   })
+  
+  
+#-------------------------------------------------------------------------------#
+  output$ciretrantipoA <- renderDiagrammeR({
+    mermaid("
+graph TB
+A[DETRAN-PA]-->B[CIRETRAN A]
+B-->C[LEI Nº7594/2011]
+B-->D[LEI Nº432/2019]
+C-->E[SANTARÉM]
+E-->F[CASTANHAL]
+F-->G[MARABÁ]
+G-->H[ABAETETUBA]
+C-->I[ALTAMIRA]
+I-->J[CAPANEMA]
+J-->K[PARAGOMINAS]
+K-->L[TUCURUÍ]
+C-->M[REDENÇÃO]
+M-->N[ITAITUBA]
+N-->O[PARAUAPEBAS]
+O-->P[BREVES]
+D-->Q[BRAGANÇA]
+Q-->R[SÃO FÉLIX]
+",
+            width = 1000,
+            align = "center"
+    )
+  }) 
+#-------------------------------------------------------------------------------#
+  output$ciretrantipoB <- renderDiagrammeR({
+    mermaid("graph TB
+  A[LEI Nº7594/2011]-->B[DETRAN-PA]
+  B-->C[CIRETRAN TIPO B]
+  C-->D[SOURE]
+  D-->E[ALENQUER]
+  E-->F[ALMEIRIM]
+  F-->G[MONTE ALEGRE]
+  G-->H[ÓBIDOS]
+  C-->I[ORIXIMINÁ]
+  I-->J[IGUARAPÉ-AÇÚ]
+  J-->K[SÃO MIGUEL]
+  K-->L[SANTA LUZIA]
+  L-->M[TOMÉ-AÇÚ]
+  C-->N[ITUPIRANGA]
+  N-->O[JACUNDÁ]
+  O-->P[RONDON]
+  P-->Q[SÃO GERALDO]
+  Q-->R[BARCARENA]
+  C-->S[IGARAPÉ-MIRI]
+  S-->T[MEDICILÂNDIA]
+  T-->U[URUARÁ]
+  U-->V[CAPITÃO POÇO]
+  V-->W[OURILÂNDIA DO NORTE]
+  C-->X[DOM ELISEU]
+  X-->Y[MÃE DO RIO]
+  Y-->Z[NOVO REPARTIMENTO]
+  Z-->A1[CONCEIÇÃO DO ARAGUAIA]
+  A1-->A2[SANTANA DO ARAGUAIA]
+  C-->A3[TUCUMÃ]
+  A3-->A4[NOVO PROGRESSO]
+  A4-->A5[CANÃA DOS CARAJÁS]
+  A5-->A6[CURIONÓPOLIS]
+  A6-->A7[RURÓPOLIS]
+   C-->A8[ANANINDEUA]
+   A8-->A9[CAMETÁ]
+   A9-->A10[VIGIA]
+   A10-->A11[SALINÓPOLIS]
+   A11-->A12[TAILÂNDIA]
+   C--> A13[SANTA ISABEL]
+  ", width = 1000)
+  })
+#-------------------------------------------------------------------------------#
+  
 #------------------------------------------------------------------------------#
 # ValueBox de Servidores
   output$valuebox_servidores <- renderValueBox({
@@ -306,14 +431,7 @@ server <- function(input, output, session) {
       color = "aqua"
     )
   })  
-  
-  
-  
-  
-  
-  
-  
-  
+
 #------------------------------------------------------------------------------#
 # Botão de Reset
 observeEvent(input$reset_button, {
@@ -566,7 +684,7 @@ output$tabela_assistente <- renderDT({
 # Escala Likert
 
 output$likertPlot1 <- renderPlotly({
-  Dados_Clima <- readxl::read_excel("C:/Users/usuario/Documents/Perfil_Estrutural_Cretran/Dados_Clima.xls")
+  Dados_Clima <- readxl::read_excel("C:/Users/mario.valente/Documents/github_2024/Perfil_Estrutural_Ciretran-main//Dados_Clima.xls")
   dados_filtrados <- Dados_Clima
   dados_filtrados[, 1:14] <- lapply(dados_filtrados[, 1:14], 
                                    factor, 
@@ -619,7 +737,7 @@ output$likertPlot1 <- renderPlotly({
 
 
 output$likertPlot2 <- renderPlotly({
-  Dados_Clima <- readxl::read_excel("C:/Users/usuario/Documents/Perfil_Estrutural_Cretran/Dados_Clima.xls")
+  Dados_Clima <- readxl::read_excel("C:/Users/mario.valente/Documents/github_2024/Perfil_Estrutural_Ciretran-main/Dados_Clima.xls")
   dados_filtrados <- Dados_Clima
   dados_filtrados[, 15:5] <- lapply(dados_filtrados[, 15:25], 
                                     factor, 
@@ -672,7 +790,7 @@ output$likertPlot2 <- renderPlotly({
 
 
 output$likertPlot3 <- renderPlotly({
-  Dados_Clima <- readxl::read_excel("C:/Users/usuario/Documents/Perfil_Estrutural_Cretran/Dados_Clima.xls")
+  Dados_Clima <- readxl::read_excel("C:/Users/mario.valente/Documents/github_2024/Perfil_Estrutural_Ciretran-main/Dados_Clima.xls")
   dados_filtrados <- Dados_Clima
   dados_filtrados[, 26:39] <- lapply(dados_filtrados[, 26:39], 
                                     factor, 
