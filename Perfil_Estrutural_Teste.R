@@ -1,5 +1,3 @@
-
-
 #-------------------------------------------------------------------------------
 # PACOTES
 library(readr)
@@ -66,7 +64,7 @@ gerar_grafico <- function(dados, x_var, fill_var, title, order = "asc") {
       stat = "count",
       aes(label = scales::percent(..count.. / sum(..count..))),
       position = position_stack(vjust = 0.5),
-      color = "white"
+      color = "black"
     ) +
     labs(title = title, x = "", y = "Nº de Entrevistados") +
     theme_minimal()
@@ -131,100 +129,40 @@ ui <- dashboardPage(
       tags$style(HTML(".fa-github:hover {color: #6e6e6e;}"))
     )
   ),
-  dashboardSidebar(
-    tags$img(
-      src = "detran1.jpeg",
-      width = 230,
-      height = 150
-    ),
+  dashboardSidebar(tags$img(src = "detran1.jpeg",width = 230,height = 150),
     sidebarMenu(
-      menuItem(
-        "CIRETRAN'S",
-        tabName = "anuario",
-        icon = icon("address-card"),
-        menuSubItem("SOBRE CIRETRAN", tabName = "sobre1", icon =
-                      icon("book")),
-        menuSubItem(
-          "VÍDEO INSTITUCIONAL",
-          tabName = "video1",
-          icon = icon("video")
-        )
-      ),
-      menuItem(
-        "CLASSIFICAÇÃO",
-        tabName = "catCiretran",
-        icon = icon("book"),
+      menuItem("CIRETRAN'S",tabName = "anuario", icon = icon("address-card"),
+        menuSubItem("SOBRE CIRETRAN", tabName = "sobre1", icon = icon("book")),
+        menuSubItem("VÍDEO INSTITUCIONAL",tabName = "video1", icon = icon("video"))),
+      menuItem("CLASSIFICAÇÃO",tabName = "catCiretran",icon = icon("book"),
         menuSubItem("TIPO A", tabName = "tipoA", icon = icon("book")),
-        menuSubItem("TIPO B", tabName = "tipoB", icon = icon("book"))
-      ),
-      menuItem(
-        "RECURSOS HUMANOS",
-        tabName = "socio1",
-        icon = icon("book")
-      ),
-      menuItem(
-        "EQUIPAMENTOS",
-        tabName = "equipamento1",
-        icon = icon("wrench")
-      ),
-      menuItem(
-        "ESTRUTURAL",
-        tabName = "estrutura1",
-        icon = icon("building")
-      ),
+        menuSubItem("TIPO B", tabName = "tipoB", icon = icon("book")),
+        menuSubItem("HOMOLOGADAS", tabName = "tipoC", icon = icon("book")),
+        menuSubItem("POSTO DE ATENDIMENTO", tabName = "tipoD", icon = icon("book"))),
+      menuItem("RECURSOS HUMANOS",tabName = "socio1",icon = icon("book")),
+      menuItem("EQUIPAMENTOS",tabName = "equipamento1",icon = icon("wrench")),
+      menuItem("ESTRUTURAL",tabName = "estrutura1",icon = icon("building")),
       menuItem("SERVIÇOS", tabName = "servico1", icon = icon("tasks")),
       menuItem("VISITA TÉCNICA", tabName = "visita1", icon = icon("book")),
-      selectInput(
-        "municipio",
-        "MUNICÍPIOS:",
-        choices = unique(dados$Municípios),
-        selected = unique(dados$Municípios)[56]
-      ),
-      selectInput(
-        "regiao",
-        "REGIÃO DE INTEGRAÇÃO:",
-        choices = unique(dados$`Região Integração`),
-        selected = unique(dados$`Região Integração`)[1]
-      ),
-      selectInput(
-        "tipo_ciretran",
-        "TIPO DE CIRETRAN:",
-        choices = unique(dados$`Tipo Ciretran`),
-        selected = unique(dados$`Tipo Ciretran`)[1]
-      ),
-      selectInput(
-        "situacao_imovel",
-        "SITUAÇÃO DO IMÓVEL:",
-        choices = unique(dados$`Situação do Imóvel`),
-        selected = unique(dados$`Situação do Imóvel`)[1]
-      ),
+      selectInput("municipio","MUNICÍPIOS:",choices = unique(dados$Municípios),
+                  selected = unique(dados$Municípios)[56]),
+      selectInput("regiao","REGIÃO DE INTEGRAÇÃO:",choices = unique(dados$`Região Integração`),
+        selected = unique(dados$`Região Integração`)[1]),
+      selectInput("tipo_ciretran","TIPO DE CIRETRAN:",choices = unique(dados$`Tipo Ciretran`),
+        selected = unique(dados$`Tipo Ciretran`)[1]),
+      selectInput("situacao_imovel","SITUAÇÃO DO IMÓVEL:",choices = unique(dados$`Situação do Imóvel`),
+        selected = unique(dados$`Situação do Imóvel`)[1]),
       actionButton("reset_button", "Reiniciar Filtros", class = "btn-success")
     )
   ),
   dashboardBody(
-    
     tabItems(
-      tabItem(
-        tabName = "sobre1",
-        tabBox(
-          id = "t1",
-          width = 12,
-          tabPanel(
-            "CIRETRAN'S",
-            icon = icon("address-card"),
+      tabItem(tabName = "sobre1",
+        tabBox(id = "t1",width = 12,
+          tabPanel("CIRETRAN'S",icon = icon("address-card"),
             fluidRow(
-             
-              column(
-                width = 8,
-                position = "left",
-                solidHeader = TRUE,
-                tags$img(
-                  id = "foto1",
-                  src = "ciretran.jpg",
-                  controls = "controls",
-                  width = 700,
-                  height = 550
-                ),
+              column(width = 8,position = "left",solidHeader = TRUE,
+                tags$img(id = "foto1",src = "ciretran.jpg",controls = "controls",width = 700,height = 550),
                 tags$br(),
                 tags$a("Photo by Asdecom"),
                 align = "left"
@@ -256,7 +194,7 @@ ui <- dashboardPage(
               )
             )
           ),
-          #===============================================================================#
+#===============================================================================#
           tabPanel("ATIVIDADES", icon = icon("hospital"), fluidRow(
             column(
               h3("INTRODUÇÃO", align = "center"),
@@ -389,7 +327,6 @@ ui <- dashboardPage(
                      )
                    )
           ),
-
           tabPanel("RECURSO COMPUTACIONAL",
                    icon = icon("computer"),
                    fluidRow(
@@ -505,11 +442,6 @@ ui <- dashboardPage(
               )
             )
           )
-          
-          
-          
-          
-          
         )
       ),
       tabItem(
@@ -549,12 +481,48 @@ ui <- dashboardPage(
           )
         ))
       ),
-      
+tabItem(
+  tabName = "tipoC",
+  tabPanel("TIPOS DE CIRETRAN'S", icon = icon("address-card"), fluidRow(
+    box(
+      width = 12,
+      title = "CIRETRAN HOMOLOGADAS",
+      style = "text-align: center",
+      status = "primary",
+      solidHeader = TRUE,
+      collapsible = TRUE,
+      headerBorder = TRUE,
+      div(
+        style = "text-align: center;",
+        class = "elemente",
+        DiagrammeROutput("ciretrantipoC")
+      )
+    )
+  ))
+),
+tabItem(
+  tabName = "tipoD",
+  tabPanel("TIPOS DE CIRETRAN'S", icon = icon("address-card"), fluidRow(
+    box(
+      width = 12,
+      title = "POSTO DE ATENDIMENTO",
+      style = "text-align: center",
+      status = "primary",
+      solidHeader = TRUE,
+      collapsible = TRUE,
+      headerBorder = TRUE,
+      div(
+        style = "text-align: center;",
+        class = "elemente",
+        DiagrammeROutput("ciretrantipoD")
+      )
+    )
+  ))
+),
       tabItem(tabName = "socio1",
               tags$style(
                 ".btn-success { background-color: #004c99; color: white; border: none; }"
               ),
-              
               fluidRow(
                 valueBoxOutput("valuebox_servidores", width = 2),
                 valueBoxOutput("valuebox_comissionado", width = 2),
@@ -563,7 +531,6 @@ ui <- dashboardPage(
                 valueBoxOutput("valuebox_vistoriador", width = 2),
                 valueBoxOutput("valuebox_assistente", width = 2)
               ),
-              
         fluidRow(
         tabBox(
           title = "",
@@ -665,8 +632,6 @@ ui <- dashboardPage(
                 DTOutput("tabela_assistente")
               )
             )
-            
-            
           )),
         )
       )),
@@ -691,7 +656,6 @@ ui <- dashboardPage(
           )
         )
       ),
-      
       tabItem(
         tabName = "servico1",
         tabPanel(
@@ -736,14 +700,17 @@ ui <- dashboardPage(
       )
     )
   )
+,
+footer = dashboardFooter(
+  left = "COPYRIGHT© 2025 DETRAN-PA - Todos os direitos Reservados.",
+  right = "Belém - PA"
 )
-
-
+)
 #-------------------------------------------------------------------------------
 # SERVER
 server <- function(input, output, session) {
   
-  # Filtrar dados com base no município selecionado
+# Filtrar dados com base no município selecionado
   dados_filtrados <- reactive({
     if (is.null(input$municipio)) {
       return(dados) # Caso nenhum município tenha sido selecionado, retorna todos os dados
@@ -751,9 +718,38 @@ server <- function(input, output, session) {
       dados %>% filter(Municípios == input$municipio)
     }
   })
+#-------------------------------------------------------------------------------
+#Mapa
+detran_location <- data.frame(
+    lat = -1.37843,
+    lon = -48.44034
+  )
   
-  
-  #-------------------------------------------------------------------------------#
+  output$mapa <- renderLeaflet({
+    df <- read.csv(textConnection(
+      "Nome, lat, lon,
+      DETRAN-PA, -1.37843, -48.44034"
+    ))
+    leaflet::leaflet(df) %>%
+      addTiles() %>%
+      # addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+      # addProviderTiles(providers$Esri.WorldStreetMap)%>%
+      addMarkers(~lon, ~lat,
+                 label = ~ htmlEscape(Nome),
+                 labelOptions = labelOptions(
+                   noHide = FALSE,
+                   textsize = "15px"
+                 )
+      ) %>%
+      addProviderTiles(providers$OpenSeaMap) %>%
+      setView(
+        lng = detran_location$lon,
+        lat = detran_location$lat,
+        zoom = 15
+      )
+  })
+#-------------------------------------------------------------------------------#
+#CIRETRAN TIPO A  
   output$ciretrantipoA <- renderDiagrammeR({
     DiagrammeR::DiagrammeR(
       "
@@ -777,9 +773,8 @@ server <- function(input, output, session) {
       Q-->R[SÃO FÉLIX DO XINGU]"
     )
   })
-  
-  
-  #-------------------------------------------------------------------------------#
+#-------------------------------------------------------------------------------#
+#CIRETRAN TIPO B  
   output$ciretrantipoB <- renderDiagrammeR({
     mermaid(
       "graph TB
@@ -822,15 +817,57 @@ server <- function(input, output, session) {
    A11-->A12[TAILÂNDIA]
    C--> A13[SANTA ISABEL]
    A13--> A14[ELDORADO DOS CARAJÁS]
-  ",
-      width = 1000,
+  ",  width = 1000,
       align = "center"
     )
   })
-  #-------------------------------------------------------------------------------#
+#-------------------------------------------------------------------------------#
+#CIRETRAN TIPO C  
+output$ciretrantipoC <- renderDiagrammeR({
+  mermaid("
+graph TD
+A[DETRAN-PA]-->B[CONADM]
+B-->C[HOMOLOGADAS]
+C-->D[2008]
+D-->E[ULIANÓPOLIS]
+C-->F[2009]
+F-->G[RURÓPOLIS]
+G-->H[MARITUBA]
+C-->I[2013]
+I-->J[SÃO DOMINGOS]
+C-->K[2019]
+K-->L[JURURTI]
+L-->M[VISEU]
+", width = 1000)
+})
+#-------------------------------------------------------------------------------#
   
-  #------------------------------------------------------------------------------#
-  # ValueBox de Servidores
+#-------------------------------------------------------------------------------#
+# POSTO DE ATENDIMENTO
+output$ciretrantipoD <- renderDiagrammeR({
+mermaid("
+graph TD
+A[DETRAN-PA]-->B[POSTO DE ATENDIMENTO]
+B-->C[BELÉM]
+C-->D[SHOPPING BOULEVARD]
+D-->E[SHOPPING BOSQUE GRÃO PARÁ]
+E-->F[SHOPPING METRÓPOLIS]
+F-->G[SHOPPING PÁTIO BELÉM]
+G-->H[ESTAÇÃO CIDADANIA SÃO BRÁS]
+H-->I[PARQUE SHOPPING]
+B-->J[MARABÁ]
+J-->K[SHOPPING PÁTIO MARABÁ]
+B-->L[PARAUAPEBAS]
+L-->M[SHOPPING KARAJÁS]
+B-->N[SANTARÉM]
+N-->O[TERMINAL HIDROVIÁRIO]
+", width = 1000)
+})
+#-------------------------------------------------------------------------------#
+
+  
+#------------------------------------------------------------------------------#
+# ValueBox de Servidores
   output$valuebox_servidores <- renderValueBox({
     total_servidores <- sum(dados_filtrados()$Servidores, na.rm = TRUE)
     valueBox(
@@ -840,8 +877,8 @@ server <- function(input, output, session) {
       color = "aqua"
     )
   })
-  #------------------------------------------------------------------------------#
-  # ValueBox de Agentes
+#------------------------------------------------------------------------------#
+# ValueBox de Agentes
   output$valuebox_agentes <- renderValueBox({
     total_agentes <- sum(dados_filtrados()$N_Agentes, na.rm = TRUE)
     valueBox(
@@ -851,8 +888,8 @@ server <- function(input, output, session) {
       color = "aqua"
     )
   })
-  #------------------------------------------------------------------------------#
-  # ValueBox de Vistoriador
+#------------------------------------------------------------------------------#
+# ValueBox de Vistoriador
   output$valuebox_vistoriador <- renderValueBox({
     total_vistoriador <- sum(dados_filtrados()$N_Vistoriador, na.rm = TRUE)
     valueBox(
@@ -867,8 +904,8 @@ server <- function(input, output, session) {
       color = "aqua"
     )
   })
-  #------------------------------------------------------------------------------#
-  # ValueBox de Assistente
+#------------------------------------------------------------------------------#
+# ValueBox de Assistente
   output$valuebox_assistente <- renderValueBox({
     total_assistente <- sum(dados_filtrados()$N_Assistente, na.rm = TRUE)
     valueBox(
@@ -879,8 +916,8 @@ server <- function(input, output, session) {
       color = "aqua"
     )
   })
-  #------------------------------------------------------------------------------#
-  # ValueBox de Analista
+#------------------------------------------------------------------------------#
+# ValueBox de Analista
   output$valuebox_analista <- renderValueBox({
     total_analista <- sum(dados_filtrados()$N_Analista, na.rm = TRUE)
     valueBox(
@@ -890,8 +927,8 @@ server <- function(input, output, session) {
       color = "aqua"
     )
   })
-  #------------------------------------------------------------------------------#
-  # ValueBox de Comissionado
+#------------------------------------------------------------------------------#
+# ValueBox de Comissionado
   output$valuebox_comissionado <- renderValueBox({
     total_comissionado <- sum(dados_filtrados()$N_Comissionado, na.rm = TRUE)
     valueBox(
@@ -905,22 +942,16 @@ server <- function(input, output, session) {
       color = "aqua"
     )
   })
-  
-  #------------------------------------------------------------------------------#
-  # Botão de Reset
+#------------------------------------------------------------------------------#
+# Botão de Reset
   observeEvent(input$reset_button, {
     updateSelectInput(session, "municipio", selected = unique(dados$Municípios)[56])
     updateSelectInput(session, "regiao", selected = unique(dados$`Região Integração`)[1])
-    updateSelectInput(session,
-                      "tipo_ciretran",
-                      selected = unique(dados$`Tipo Ciretran`)[1])
-    updateSelectInput(session,
-                      "situacao_imovel",
-                      selected = unique(dados$`Situação do Imóvel`)[1])
+    updateSelectInput(session,"tipo_ciretran",selected = unique(dados$`Tipo Ciretran`)[1])
+    updateSelectInput(session,"situacao_imovel",selected = unique(dados$`Situação do Imóvel`)[1])
   })
-  #------------------------------------------------------------------------------#
-  # Gráfico de Vistoriador
-  
+#------------------------------------------------------------------------------#
+# Gráfico de Vistoriador
   output$grafico_vistoriador <- renderPlotly({
     if ("Vistoriador" %in% colnames(dados)) {
       vistoriador_count <- dados %>%
@@ -947,51 +978,45 @@ server <- function(input, output, session) {
       return(plotly_p1)
     }
   })
-  #------------------------------------------------------------------------------#
-  # Tabela Vistoriador por Região Integração (Corrigindo totais)
-  
+#------------------------------------------------------------------------------#
+# Tabela Vistoriador por Região Integração (Corrigindo totais)
+
   output$tabela_vistoriador <- renderDT({
-    # Excluir os valores NA para Vistoriador
+# Excluir os valores NA para Vistoriador
     vistoriador_table <- dados %>%
       filter(!is.na(Vistoriador)) %>%  # Filtrando os NAs
       group_by(`Região Integração`, Vistoriador) %>%
       summarise(contagem = n(), .groups = 'drop')
     
-    # Criar tabela de contingência (pivotar os dados)
+# Criar tabela de contingência (pivotar os dados)
     vistoriador_table <- vistoriador_table %>%
       pivot_wider(
         names_from = Vistoriador,
         values_from = contagem,
         values_fill = list(contagem = 0)
       )
-    
-    # Adicionar totais das linhas (por região)
+# Adicionar totais das linhas (por região)
     vistoriador_table <- vistoriador_table %>%
       rowwise() %>%
       mutate(Total = sum(c_across(where(is.numeric)), na.rm = TRUE)) %>%
       ungroup() # remover o agrupamento
     
-    # Agora, adicionar a linha "Total Geral" no final (soma de todas as regiões)
+# Agora, adicionar a linha "Total Geral" no final (soma de todas as regiões)
     total_geral <- vistoriador_table %>%
       summarise(across(c(2, 3, 4), sum, na.rm = TRUE)) %>%
       mutate(`Região Integração` = "Total Geral") %>%
       select(`Região Integração`, everything()) # reorganiza para que "Total Geral" fique na primeira coluna
     
-    # Adiciona a linha "Total Geral" na tabela
+# Adiciona a linha "Total Geral" na tabela
     vistoriador_table <- bind_rows(vistoriador_table, total_geral)
     
-    # Renderizar a tabela com DT
+# Renderizar a tabela com DT
     DT::datatable(vistoriador_table, options = list(pageLength = 13)
                   #,caption = "Tabela Geral de Vistoriador por Região Integração"
                   )
   })
-    
-    
-    
-    
-    
-    #------------------------------------------------------------------------------#
-    # Gráfico Agente de Trânsito
+#------------------------------------------------------------------------------#
+# Gráfico Agente de Trânsito
     output$grafico_aft <- renderPlotly({
       if ("AFT" %in% colnames(dados)) {
         aft_count <- dados %>%
@@ -1014,29 +1039,29 @@ server <- function(input, output, session) {
         ggplotly(p2)
       }
     })
-    
-    output$tabela_aft <- renderDT({
+#------------------------------------------------------------------------------#
+# Tabela Auxiliar AFT
+output$tabela_aft <- renderDT({
       # Excluir os valores NA para Vistoriador
       aft_table <- dados %>%
         filter(!is.na(AFT)) %>%  # Filtrando os NAs
         group_by(`Região Integração`, AFT) %>%
         summarise(contagem = n(), .groups = 'drop')
       
-      # Criar tabela de contingência (pivotar os dados)
+# Criar tabela de contingência (pivotar os dados)
       aft_table <- aft_table %>%
         pivot_wider(
           names_from = AFT,
           values_from = contagem,
           values_fill = list(contagem = 0)
         )
-      
-      # Adicionar totais das linhas (por região)
+# Adicionar totais das linhas (por região)
       aft_table <- aft_table %>%
         rowwise() %>%
         mutate(Total = sum(c_across(where(is.numeric)), na.rm = TRUE)) %>%
         ungroup() # remover o agrupamento
       
-      # Agora, adicionar a linha "Total Geral" no final (soma de todas as regiões)
+# Agora, adicionar a linha "Total Geral" no final (soma de todas as regiões)
       total_geral <- aft_table %>%
         summarise(across(c(2, 3, 4), sum, na.rm = TRUE)) %>%
         mutate(`Região Integração` = "Total Geral") %>%
@@ -1050,12 +1075,9 @@ server <- function(input, output, session) {
                     #,caption = "Tabela Geral de Vistoriador por Região Integração"
                     )
     })
-      
-      
-      
-      #------------------------------------------------------------------------------#
-      # Gráfico Auxiliar
-      output$grafico_auxiliar <- renderPlotly({
+#------------------------------------------------------------------------------#
+# Gráfico Auxiliar
+output$grafico_auxiliar <- renderPlotly({
         if ("Auxiliar" %in% colnames(dados)) {
           auxiliar_count <- dados %>%
             filter(!is.na(Auxiliar)) %>%  # Excluir valores NA da variável AFT
@@ -1078,8 +1100,9 @@ server <- function(input, output, session) {
           ggplotly(p3)
         }
       })
-      
-      output$tabela_auxiliar <- renderDT({
+#------------------------------------------------------------------------------#
+# Tabela Auxiliar
+output$tabela_auxiliar <- renderDT({
         auxiliar_table <- dados %>%
           filter(!is.na(Auxiliar)) %>%  # Excluir valores NA da variável Auxiliar
           group_by(`Região Integração`, Auxiliar) %>%
@@ -1113,12 +1136,10 @@ server <- function(input, output, session) {
                       #, caption = "Tabela Geral de Auxiliar por Região Integração"
                       )
       })
+#------------------------------------------------------------------------------#
         
-        
-        #------------------------------------------------------------------------------#
-        
-        #------------------------------------------------------------------------------#
-        # Gráfico Assistente
+#------------------------------------------------------------------------------#
+# Gráfico Assistente
         output$grafico_assistente <- renderPlotly({
           if ("Assistente" %in% colnames(dados)) {
             assistente_count <- dados %>%
@@ -1141,7 +1162,6 @@ server <- function(input, output, session) {
             ggplotly(p4)
           }
         })
-        
         output$tabela_assistente <- renderDT({
           assistente_table <- dados %>%
             filter(!is.na(Assistente)) %>%  # Excluir valores NA da variável Assistente
@@ -1176,13 +1196,12 @@ server <- function(input, output, session) {
                         #, caption = "Tabela Geral de Assistente por Região Integração"
                         )
         })
-          #------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
           
           
-          #-------------------------------------------------------------------------------
-          # Escala Likert
-          
-  output$likertPlot1 <- renderPlotly({
+#------------------------------------------------------------------------------#
+# Escala Likert
+output$likertPlot1 <- renderPlotly({
   Dados_Clima <- readxl::read_excel("C:/Users/mario.valente/Documents/github_2024/Perfil_Estrutural_Ciretran-main/Dados_Clima.xls")
             dados_filtrados <- Dados_Clima
             dados_filtrados[, 1:14] <- lapply(
@@ -1249,10 +1268,8 @@ server <- function(input, output, session) {
                 )   # Ajuste das margens internas
               )
           })
-          
-          
-          
-          output$likertPlot2 <- renderPlotly({
+#-------------------------------------------------------------------------------#
+output$likertPlot2 <- renderPlotly({
             Dados_Clima <- readxl::read_excel(
               "C:/Users/mario.valente/Documents/github_2024/Perfil_Estrutural_Ciretran-main/Dados_Clima.xls"
             )
@@ -1264,19 +1281,18 @@ server <- function(input, output, session) {
               labels = c("Sim", "Não", "Não Sei Informar"),
               ordered = TRUE
             )
-            
-            # Carregar a tabela com os nomes das colunas
+# Carregar a tabela com os nomes das colunas
             nomes2 <- read_excel("Dados_Clima.xls", sheet = 4)
             colnames(dados_filtrados)[15:25] <- nomes2$Nomes2
             
-            # Gerar o gráfico da escala Likert
+# Gerar o gráfico da escala Likert
             dados_grafico <- likert(as.data.frame(dados_filtrados[15:25]))
             
-            # Paleta de cores para o gráfico
+# Paleta de cores para o gráfico
             paleta <- brewer.pal(n = 5, "RdBu")
             paleta[3] <- "lightblue"
             
-            # Criar o Gráfico Likert
+# Criar o Gráfico Likert
             graficolikert2 <- likert.bar.plot(
               dados_grafico,
               strip = TRUE,
@@ -1303,7 +1319,7 @@ server <- function(input, output, session) {
                 plot.background = element_rect(fill = "white"),
                 plot.title = element_text(hjust = 0.5)  # Centraliza o título
               )
-            # Obter as dimensões da janela do navegador
+# Obter as dimensões da janela do navegador
             largura <- session$clientData$output_likertPlot2_width
             altura <- session$clientData$output_likertPlot2_height
             
@@ -1321,9 +1337,8 @@ server <- function(input, output, session) {
                 )   # Ajuste das margens internas
               )
           })
-          
-          
-          output$likertPlot3 <- renderPlotly({
+#-------------------------------------------------------------------------------#
+output$likertPlot3 <- renderPlotly({
             Dados_Clima <- readxl::read_excel(
               "C:/Users/mario.valente/Documents/github_2024/Perfil_Estrutural_Ciretran-main/Dados_Clima.xls"
             )
@@ -1335,19 +1350,18 @@ server <- function(input, output, session) {
               labels = c("Sim", "Não", "Não Sei Informar"),
               ordered = TRUE
             )
-            
-            # Carregar a tabela com os nomes das colunas
+# Carregar a tabela com os nomes das colunas
             nomes3 <- read_excel("Dados_Clima.xls", sheet = 5)
             colnames(dados_filtrados)[26:39] <- nomes3$Nomes3
             
-            # Gerar o gráfico da escala Likert
+# Gerar o gráfico da escala Likert
             dados_grafico <- likert(as.data.frame(dados_filtrados[26:39]))
             
-            # Paleta de cores para o gráfico
+# Paleta de cores para o gráfico
             paleta <- brewer.pal(n = 5, "RdBu")
             paleta[3] <- "lightblue"
             
-            # Criar o Gráfico Likert
+# Criar o Gráfico Likert
             graficolikert3 <- likert.bar.plot(
               dados_grafico,
               strip = TRUE,
@@ -1392,20 +1406,7 @@ server <- function(input, output, session) {
                 )   # Ajuste das margens internas
               )
           })
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
 }
-
 #-------------------------------------------------------------------------------
 # APP
 
