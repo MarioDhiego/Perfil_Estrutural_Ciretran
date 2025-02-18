@@ -757,20 +757,20 @@ detran_location <- data.frame(
       A[DETRAN-PA]-->B[CIRETRAN A]
       B-->C[LEI Nº7594/2011]
       B-->D[LEI Nº432/2019]
-      C-->E[SANTARÉM]
-      E-->F[CASTANHAL]
-      F-->G[MARABÁ]
-      G-->H[ABAETETUBA]
-      C-->I[ALTAMIRA]
-      I-->J[CAPANEMA]
-      J-->K[PARAGOMINAS]
-      K-->L[TUCURUÍ]
-      C-->M[REDENÇÃO]
-      M-->N[ITAITUBA]
-      N-->O[PARAUAPEBAS]
-      O-->P[BREVES]
-      D-->Q[BRAGANÇA]
-      Q-->R[SÃO FÉLIX DO XINGU]"
+      C-->E(SANTARÉM)
+      E-->F(CASTANHAL)
+      F-->G(MARABÁ)
+      G-->H(ABAETETUBA)
+      C-->I(ALTAMIRA)
+      I-->J(CAPANEMA)
+      J-->K(PARAGOMINAS)
+      K-->L(TUCURUÍ)
+      C-->M(REDENÇÃO)
+      M-->N(ITAITUBA)
+      N-->O(PARAUAPEBAS)
+      O-->P(BREVES)
+      D-->Q(BRAGANÇA)
+      Q-->R(SÃO FÉLIX DO XINGU)"
     )
   })
 #-------------------------------------------------------------------------------#
@@ -780,43 +780,43 @@ detran_location <- data.frame(
       "graph TB
   A[LEI Nº7594/2011]-->B[DETRAN-PA]
   B-->C[CIRETRAN TIPO B]
-  C-->D[SOURE]
-  D-->E[ALENQUER]
-  E-->F[ALMEIRIM/M.DOURADO]
-  F-->G[MONTE ALEGRE]
-  G-->H[ÓBIDOS]
-  C-->I[ORIXIMINÁ]
-  I-->J[IGUARAPÉ-AÇÚ]
-  J-->K[SÃO MIGUEL]
-  K-->L[SANTA LUZIA]
-  L-->M[TOMÉ-AÇÚ]
-  C-->N[ITUPIRANGA]
-  N-->O[JACUNDÁ]
-  O-->P[RONDON]
-  P-->Q[SÃO GERALDO]
-  Q-->R[BARCARENA]
-  C-->S[IGARAPÉ-MIRI]
-  S-->T[MEDICILÂNDIA]
-  T-->U[URUARÁ]
-  U-->V[CAPITÃO POÇO]
-  V-->W[OURILÂNDIA DO NORTE]
-  C-->X[DOM ELISEU]
-  X-->Y[MÃE DO RIO]
-  Y-->Z[NOVO REPARTIMENTO]
-  Z-->A1[CONCEIÇÃO DO ARAGUAIA]
-  A1-->A2[SANTANA DO ARAGUAIA]
-  C-->A3[TUCUMÃ]
-  A3-->A4[NOVO PROGRESSO]
-  A4-->A5[CANÃA DOS CARAJÁS]
-  A5-->A6[CURIONÓPOLIS]
-  A6-->A7[RURÓPOLIS]
-   C-->A8[ANANINDEUA]
-   A8-->A9[CAMETÁ]
-   A9-->A10[VIGIA]
-   A10-->A11[SALINÓPOLIS]
-   A11-->A12[TAILÂNDIA]
-   C--> A13[SANTA ISABEL]
-   A13--> A14[ELDORADO DOS CARAJÁS]
+  C-->D(SOURE)
+  D-->E(ALENQUER)
+  E-->F(ALMEIRIM/M.DOURADO)
+  F-->G(MONTE ALEGRE)
+  G-->H(ÓBIDOS)
+  C-->I(ORIXIMINÁ)
+  I-->J(IGUARAPÉ-AÇÚ)
+  J-->K(SÃO MIGUEL)
+  K-->L(SANTA LUZIA)
+  L-->M(TOMÉ-AÇÚ)
+  C-->N(ITUPIRANGA)
+  N-->O(JACUNDÁ)
+  O-->P(RONDON)
+  P-->Q(SÃO GERALDO)
+  Q-->R(BARCARENA)
+  C-->S(IGARAPÉ-MIRI)
+  S-->T(MEDICILÂNDIA)
+  T-->U(URUARÁ)
+  U-->V(CAPITÃO POÇO)
+  V-->W(OURILÂNDIA DO NORTE)
+  C-->X(DOM ELISEU)
+  X-->Y(MÃE DO RIO)
+  Y-->Z(NOVO REPARTIMENTO)
+  Z-->A1(CONCEIÇÃO DO ARAGUAIA)
+  A1-->A2(SANTANA DO ARAGUAIA)
+  C-->A3(TUCUMÃ)
+  A3-->A4(NOVO PROGRESSO)
+  A4-->A5(CANÃA DOS CARAJÁS)
+  A5-->A6(CURIONÓPOLIS)
+  A6-->A7(RURÓPOLIS)
+   C-->A8(ANANINDEUA)
+   A8-->A9(CAMETÁ)
+   A9-->A10(VIGIA)
+   A10-->A11(SALINÓPOLIS)
+   A11-->A12(TAILÂNDIA)
+   C--> A13(SANTA ISABEL)
+   A13--> A14(ELDORADO DOS CARAJÁS)
   ",  width = 1000,
       align = "center"
     )
@@ -829,15 +829,15 @@ graph TD
 A[DETRAN-PA]-->B[CONADM]
 B-->C[HOMOLOGADAS]
 C-->D[2008]
-D-->E[ULIANÓPOLIS]
+D-->E(ULIANÓPOLIS)
 C-->F[2009]
-F-->G[RURÓPOLIS]
-G-->H[MARITUBA]
+F-->G(RURÓPOLIS)
+G-->H(MARITUBA)
 C-->I[2013]
-I-->J[SÃO DOMINGOS]
+I-->J(SÃO DOMINGOS)
 C-->K[2019]
-K-->L[JURURTI]
-L-->M[VISEU]
+K-->L(JURURTI)
+L-->M(VISEU)
 ", width = 1000)
 })
 #-------------------------------------------------------------------------------#
@@ -849,18 +849,18 @@ mermaid("
 graph TD
 A[DETRAN-PA]-->B[POSTO DE ATENDIMENTO]
 B-->C[BELÉM]
-C-->D[SHOPPING BOULEVARD]
-D-->E[SHOPPING BOSQUE GRÃO PARÁ]
-E-->F[SHOPPING METRÓPOLIS]
-F-->G[SHOPPING PÁTIO BELÉM]
-G-->H[ESTAÇÃO CIDADANIA SÃO BRÁS]
-H-->I[PARQUE SHOPPING]
+C-->D(SHOPPING BOULEVARD)
+D-->E(SHOPPING BOSQUE GRÃO PARÁ)
+E-->F(SHOPPING METRÓPOLE)
+F-->G(SHOPPING PÁTIO BELÉM)
+G-->H(ESTAÇÃO CIDADANIA SÃO BRÁS)
+H-->I(PARQUE SHOPPING)
 B-->J[MARABÁ]
-J-->K[SHOPPING PÁTIO MARABÁ]
+J-->K(SHOPPING PÁTIO MARABÁ)
 B-->L[PARAUAPEBAS]
-L-->M[SHOPPING KARAJÁS]
+L-->M(SHOPPING KARAJÁS)
 B-->N[SANTARÉM]
-N-->O[TERMINAL HIDROVIÁRIO]
+N-->O(TERMINAL HIDROVIÁRIO)
 ", width = 1000)
 })
 #-------------------------------------------------------------------------------#
