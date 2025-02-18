@@ -261,7 +261,7 @@ ui <- dashboardPage(
                        tags$p(
                          style = "text-align:justify;font-si20pt",
                          strong(
-                           "Traçar o Perfil Estatístico das Agências Regionais do DETRAN-PA."
+                           "Elaborar o Perfil Estatístico das Agências Regionais do DETRAN-PA, e avaliar."
                          )
                        ),
                        tags$br(),
@@ -324,8 +324,22 @@ ui <- dashboardPage(
                            "Para a coleta dos dados foi utilizado um instrumento semiestruturado composto por 57 itens que versam sobre as Atividades Desenvolvidas nas Agências de Trânsito. A estrutura do questionário contém quatro subescalas, que medem Características Socioeconômicas, Tipos de Equipamentos, Níveis de Serviços e Dimensões Estruturantes."
                          )
                        )
-                     )
+                     ),
+                     column(
+                       width = 4,
+                       position = "center",
+                       tags$br(),
+                       h1("Questionário", align = "center"),
+                       tags$br(),
+                       
+                       # Exibir o PDF dentro do app
+                       tags$iframe(
+                         src = "Perfil_Ciretrans.pdf",  # O arquivo deve estar na pasta 'www'
+                         width = "100%",
+                         height = "500px"
+                       )
                    )
+          )
           ),
           tabPanel("RECURSO COMPUTACIONAL",
                    icon = icon("computer"),
